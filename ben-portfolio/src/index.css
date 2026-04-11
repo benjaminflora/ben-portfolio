@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=Inter:wght@400&display=swap');
+@import "tailwindcss";
+
+:root {
+  --secondary: #61656b;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #080808;
+}
+
+body {
+  color: white;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Responsive horizontal padding shared by header and grid */
+.page-padding {
+  padding-left: 164px;
+  padding-right: 164px;
+}
+
+/* Project grid — max 3 columns, wraps to 2 then 1 */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .page-padding {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  .project-grid {
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .page-padding {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .project-grid {
+    grid-template-columns: minmax(280px, 1fr);
+  }
+}
