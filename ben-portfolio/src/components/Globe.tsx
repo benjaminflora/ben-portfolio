@@ -46,6 +46,9 @@ function isLand(lat: number, lon: number, rings: number[][][]): boolean {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+// True on touch-only devices (phones/tablets) — no hover capability
+const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches
+
 type GlobeProps = { size?: number; style?: React.CSSProperties }
 
 export default function Globe({ size = 420, style }: GlobeProps) {
@@ -58,7 +61,7 @@ export default function Globe({ size = 420, style }: GlobeProps) {
 
     // ── Renderer ────────────────────────────────────────────────────────────
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false })
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isTouchDevice ? 1.5 : 2))
     renderer.setSize(size, size)
     renderer.setClearColor(0x000000, 0)
     mount.appendChild(renderer.domElement)
@@ -75,7 +78,7 @@ export default function Globe({ size = 420, style }: GlobeProps) {
 
     // ── Inner dot cloud ──────────────────────────────────────────────────────
     const positions: number[] = []
-    const CLOUD  = 4500
+    const CLOUD  = isTouchDevice ? 1800 : 4500
     const GOLDEN = Math.PI * (3 - Math.sqrt(5))
 
     for (let i = 0; i < CLOUD; i++) {
@@ -127,10 +130,13 @@ export default function Globe({ size = 420, style }: GlobeProps) {
       transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     })))
 
-    // ── Land glow layer (async) ──────────────────────────────────────────────
+    // ── Land glow layer (async, time-sliced so it never blocks the main thread) ──
     const landDisposables: THREE.BufferGeometry[] = []
+    let cancelled = false
+    let chunkTimer = 0
 
     import('world-atlas/countries-110m.json').then(mod => {
+      if (cancelled) return
       const topo = mod.default as unknown as Topology<{ countries: GeometryCollection }>
       const countries = feature(topo, topo.objects.countries)
 
@@ -141,43 +147,52 @@ export default function Globe({ size = 420, style }: GlobeProps) {
         else if (g.type === 'MultiPolygon') for (const p of g.coordinates) landRings.push(p[0])
       }
 
-      const LRAD = 1.54, CANDS = 20000
+      const LRAD = 1.54, CANDS = isTouchDevice ? 7000 : 20000
+      const CHUNK = 1500
       const lp: number[] = []
-      for (let i = 0; i < CANDS; i++) {
-        const yn = 1 - (i / (CANDS - 1)) * 2
-        const r  = Math.sqrt(Math.max(0, 1 - yn * yn))
-        const th = GOLDEN * i
-        const lat = Math.asin(yn) * (180 / Math.PI)
-        const lon = ((th % (2 * Math.PI)) / (2 * Math.PI)) * 360 - 180
-        if (isLand(lat, lon, landRings))
-          lp.push(LRAD * r * Math.cos(th), LRAD * yn, LRAD * r * Math.sin(th))
+      let i = 0
+
+      const processChunk = () => {
+        if (cancelled) return
+        const end = Math.min(i + CHUNK, CANDS)
+        for (; i < end; i++) {
+          const yn = 1 - (i / (CANDS - 1)) * 2
+          const r  = Math.sqrt(Math.max(0, 1 - yn * yn))
+          const th = GOLDEN * i
+          const lat = Math.asin(yn) * (180 / Math.PI)
+          const lon = ((th % (2 * Math.PI)) / (2 * Math.PI)) * 360 - 180
+          if (isLand(lat, lon, landRings))
+            lp.push(LRAD * r * Math.cos(th), LRAD * yn, LRAD * r * Math.sin(th))
+        }
+        if (i < CANDS) { chunkTimer = window.setTimeout(processChunk, 0); return }
+
+        const lg = new THREE.BufferGeometry()
+        lg.setAttribute('position', new THREE.Float32BufferAttribute(lp, 3))
+        landDisposables.push(lg)
+
+        const glowVert = /* glsl */`
+          varying float vBack;
+          void main() {
+            vec4 mv = modelViewMatrix * vec4(position, 1.0);
+            vBack = smoothstep(2.3, 5.3, -mv.z);
+            gl_PointSize = 5.5;
+            gl_Position = projectionMatrix * mv;
+          }`
+        const glowFrag = /* glsl */`
+          varying float vBack;
+          void main() {
+            float d = length(gl_PointCoord - 0.5) * 2.0;
+            float a = exp(-d * d * 3.8);
+            float o = mix(0.72, 0.08, vBack);
+            if (a * o < 0.008) discard;
+            gl_FragColor = vec4(1.0, 1.0, 1.0, a * o);
+          }`
+        group.add(new THREE.Points(lg, new THREE.ShaderMaterial({
+          vertexShader: glowVert, fragmentShader: glowFrag,
+          transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+        })))
       }
-
-      const lg = new THREE.BufferGeometry()
-      lg.setAttribute('position', new THREE.Float32BufferAttribute(lp, 3))
-      landDisposables.push(lg)
-
-      const glowVert = /* glsl */`
-        varying float vBack;
-        void main() {
-          vec4 mv = modelViewMatrix * vec4(position, 1.0);
-          vBack = smoothstep(2.3, 5.3, -mv.z);
-          gl_PointSize = 5.5;
-          gl_Position = projectionMatrix * mv;
-        }`
-      const glowFrag = /* glsl */`
-        varying float vBack;
-        void main() {
-          float d = length(gl_PointCoord - 0.5) * 2.0;
-          float a = exp(-d * d * 3.8);
-          float o = mix(0.72, 0.08, vBack);
-          if (a * o < 0.008) discard;
-          gl_FragColor = vec4(1.0, 1.0, 1.0, a * o);
-        }`
-      group.add(new THREE.Points(lg, new THREE.ShaderMaterial({
-        vertexShader: glowVert, fragmentShader: glowFrag,
-        transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-      })))
+      processChunk()
     })
 
     // ── Satellites ───────────────────────────────────────────────────────────
@@ -228,6 +243,8 @@ export default function Globe({ size = 420, style }: GlobeProps) {
     animate()
 
     return () => {
+      cancelled = true
+      clearTimeout(chunkTimer)
       cancelAnimationFrame(rafId)
       geo.dispose()
       landDisposables.forEach(g => g.dispose())

@@ -508,8 +508,8 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── Bottom gradient + blur — always ────────────────────────────────── */}
-      {[
+      {/* ── Bottom gradient + blur — skipped on touch devices, too GPU-heavy to run every frame ── */}
+      {!isTouchDevice && [
         { blur: 0.5, start:  0, end: 30 },
         { blur: 1.5, start: 20, end: 55 },
         { blur: 3,   start: 45, end: 72 },
@@ -545,7 +545,7 @@ export default function App() {
             <div style={{
               display: 'flex', flexDirection: 'column', gap: '16px',
               textAlign: 'center', width: '100%',
-              filter: 'drop-shadow(0px 0px 176px rgba(255,255,255,0.26))',
+              filter: isTouchDevice ? 'none' : 'drop-shadow(0px 0px 176px rgba(255,255,255,0.26))',
             }}>
               <FadeText delay={0} style={{
                 fontFamily: "'IBM Plex Mono', monospace", fontWeight: 400,
