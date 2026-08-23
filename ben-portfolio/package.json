@@ -10,9 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/three": "^0.183.1",
+    "@types/topojson-client": "^3.1.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "text-fade-in": "^1.0.11"
+    "text-fade-in": "^1.0.11",
+    "three": "^0.183.2",
+    "topojson-client": "^3.1.0",
+    "unicornstudio-react": "^2.1.4-1",
+    "world-atlas": "^2.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
