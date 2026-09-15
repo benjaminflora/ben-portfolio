@@ -88,3 +88,19 @@
   display: block !important;
   max-width: 100%;
 }
+
+@media (max-width: 720px) {
+  .hero {
+    padding-left: max(var(--header-padding), env(safe-area-inset-left));
+    padding-right: max(var(--header-padding), env(safe-area-inset-right));
+  }
+
+  .content {
+    max-width: 100%;
+  }
+
+  .copy {
+    padding-right: 0;
+    background: var(--atlas-base-background-background);
+  }
+}

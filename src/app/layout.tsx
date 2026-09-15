@@ -1,10 +1,16 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { FadeInProvider } from "@/components/FadeIn";
 import { NavBar } from "@/components/NavBar";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import "@/styles/globals.css";
 import styles from "./layout.module.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: "Benjamin Flora — Design Systems Designer",

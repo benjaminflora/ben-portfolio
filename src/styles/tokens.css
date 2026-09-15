@@ -102,3 +102,17 @@
   /* ── Layout / Nav Sections ── */
   --nav-section-height: 32px;
 }
+
+@media (max-width: 720px) {
+  :root {
+    --header-padding: 28px;
+    --header-gap: 20px;
+    --hero-font-size: 24px;
+    --hero-letter-spacing: -0.48px;
+    --subtitle-font-size: 15px;
+    --subtitle-max-width: 100%;
+    --nav-padding-x: 16px;
+    --nav-padding-y: 10px;
+    --breadcrumb-font-size: 13px;
+  }
+}
