@@ -1,0 +1,50 @@
+.about {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: var(--header-padding);
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--header-gap);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.heading {
+  font-family: var(--font-geist);
+  font-size: var(--hero-font-size);
+  font-weight: 400;
+  line-height: var(--hero-line-height);
+  letter-spacing: var(--hero-letter-spacing);
+  color: var(--atlas-base-color-gray-12);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: var(--subtitle-max-width);
+}
+
+.paragraph {
+  font-family: var(--font-geist);
+  font-size: var(--subtitle-font-size);
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: var(--subtitle-letter-spacing);
+  color: var(--atlas-base-text-tertiary);
+}
+
+.heading :global(.fade-in) {
+  display: inline !important;
+}
+
+.body :global(.fade-in) {
+  display: block !important;
+  max-width: 100%;
+}

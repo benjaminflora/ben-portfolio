@@ -1,0 +1,6 @@
+.tabGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--tab-gap);
+  flex-shrink: 0;
+}

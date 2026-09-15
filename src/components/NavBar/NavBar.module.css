@@ -1,0 +1,84 @@
+.navBar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: var(--nav-height);
+  padding: var(--nav-padding-y) var(--nav-padding-x);
+  background-color: var(--atlas-base-background-background);
+  backdrop-filter: blur(var(--nav-backdrop-blur));
+  -webkit-backdrop-filter: blur(var(--nav-backdrop-blur));
+  border-top: 1px solid var(--atlas-border-subtle);
+  border-bottom: 1px solid var(--atlas-border-subtle);
+  flex-shrink: 0;
+}
+
+.breadcrumbFade {
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--breadcrumb-gap);
+  width: 100%;
+  height: var(--nav-section-height);
+  min-width: 0;
+}
+
+.breadcrumbIcon {
+  flex-shrink: 0;
+  width: var(--breadcrumb-icon-size);
+  height: var(--breadcrumb-icon-size);
+  color: var(--atlas-base-text-tertiary);
+}
+
+.breadcrumbText {
+  font-family: var(--font-42dot);
+  font-size: var(--breadcrumb-font-size);
+  font-weight: 400;
+  line-height: var(--breadcrumb-line-height);
+  text-transform: lowercase;
+  text-align: center;
+  white-space: nowrap;
+  word-break: break-word;
+}
+
+.breadcrumbDomain {
+  color: var(--atlas-base-text-tertiary);
+}
+
+.breadcrumbPath {
+  color: var(--atlas-base-color-gray-12);
+}
+
+.breadcrumbCurrent {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navTabsFade {
+  flex-shrink: 0;
+}
+
+.navTabs {
+  flex-shrink: 0;
+}
+
+.actionsFade {
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+}

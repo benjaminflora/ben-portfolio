@@ -1,0 +1,44 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+.bubble {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  background-color: var(--atlas-tooltip-bg);
+  border-radius: var(--tooltip-radius);
+  will-change: transform;
+}
+
+.bubble.visible {
+  opacity: 1;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--tooltip-padding-y) var(--tooltip-padding-x);
+  border: 1px solid var(--atlas-tooltip-border);
+  border-radius: var(--tooltip-radius);
+}
+
+.text {
+  font-family: var(--font-diatype);
+  font-size: var(--tooltip-font-size);
+  font-weight: 400;
+  line-height: normal;
+  text-transform: capitalize;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--atlas-tooltip-text);
+  font-variation-settings: "wdth" 100, "MONO" 0;
+}

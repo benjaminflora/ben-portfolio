@@ -1,0 +1,63 @@
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--tab-padding-y) var(--tab-padding-x);
+  flex-shrink: 0;
+  cursor: pointer;
+  background: none;
+  border: none;
+  border-bottom: var(--tab-border-width) solid transparent;
+}
+
+.label {
+  font-family: var(--font-sf-pro);
+  font-size: var(--tab-font-size);
+  font-weight: 400;
+  line-height: var(--tab-line-height);
+  text-transform: capitalize;
+  text-align: center;
+  white-space: nowrap;
+  word-break: break-word;
+  font-variation-settings: "wdth" 100;
+}
+
+/* Active state — Figma node 141:1371 */
+.active {
+  border-bottom-color: var(--atlas-base-color-gray-12);
+}
+
+.active .label {
+  color: var(--atlas-tab-foreground-active);
+}
+
+/* Enabled (default) state — Figma node 141:1360 */
+.enabled .label {
+  color: var(--atlas-tab-foreground-enabled);
+}
+
+/* Disabled state — Figma node 211:1378 (opacity 40%) */
+.disabledFace {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: var(--tab-disabled-opacity);
+}
+
+.disabled {
+  cursor: default;
+  pointer-events: none;
+  color: var(--atlas-tab-foreground-enabled);
+  -webkit-text-fill-color: var(--atlas-tab-foreground-enabled);
+}
+
+.disabled .label {
+  color: var(--atlas-tab-foreground-enabled);
+  -webkit-text-fill-color: var(--atlas-tab-foreground-enabled);
+}
+
+.tab:disabled {
+  opacity: 1;
+  color: var(--atlas-tab-foreground-enabled);
+  -webkit-text-fill-color: var(--atlas-tab-foreground-enabled);
+}

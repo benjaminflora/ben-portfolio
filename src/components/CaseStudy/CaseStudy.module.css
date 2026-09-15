@@ -1,0 +1,137 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: var(--header-padding);
+  padding-bottom: calc(var(--header-padding) * 1.5);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+  max-width: var(--case-study-max-width);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--tab-gap);
+  font-family: var(--font-geist);
+  font-size: var(--tab-font-size);
+  font-weight: 400;
+  line-height: var(--tab-line-height);
+  color: var(--atlas-base-text-tertiary);
+}
+
+.metaRule {
+  color: var(--atlas-base-color-gray-2);
+}
+
+.title {
+  font-family: var(--font-geist);
+  font-size: var(--hero-font-size);
+  font-weight: 400;
+  line-height: var(--hero-line-height);
+  letter-spacing: var(--hero-letter-spacing);
+  color: var(--atlas-base-color-gray-12);
+}
+
+.hero {
+  width: 100%;
+  max-width: var(--case-study-max-width);
+  margin: var(--header-gap) 0 0;
+}
+
+.hero :global([data-fade-item]) {
+  display: block;
+  width: 100%;
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--case-study-max-width);
+  margin-top: var(--header-gap);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+  padding: 32px 0;
+  border-top: 1px solid var(--atlas-border-subtle);
+}
+
+.section:last-child {
+  padding-bottom: 0;
+}
+
+.figure {
+  width: 100%;
+  margin: 0;
+  padding: 32px 0 0;
+  border-top: 1px solid var(--atlas-border-subtle);
+}
+
+.figure :global([data-fade-item]) {
+  display: block;
+  width: 100%;
+}
+
+.figureImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--project-card-radius);
+}
+
+.sectionFigure {
+  width: 100%;
+  margin: 0;
+}
+
+.sectionFigure :global([data-fade-item]) {
+  display: block;
+  width: 100%;
+}
+
+.sectionLabel {
+  font-family: var(--font-geist);
+  font-size: var(--tab-font-size);
+  font-weight: 400;
+  line-height: var(--tab-line-height);
+  color: var(--atlas-base-color-gray-12);
+}
+
+.sectionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.paragraph {
+  font-family: var(--font-geist);
+  font-size: var(--subtitle-font-size);
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: var(--subtitle-letter-spacing);
+  color: var(--atlas-base-text-tertiary);
+}
+
+.title :global(.fade-in),
+.sectionLabel :global(.fade-in),
+.meta :global(.fade-in) {
+  display: inline !important;
+}
+
+.sectionBody :global(.fade-in) {
+  display: block !important;
+  max-width: 100%;
+}

@@ -1,0 +1,83 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  z-index: 1;
+}
+
+.projectNav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: var(--project-nav-height);
+  background-color: var(--atlas-base-background-background);
+  border-top: 1px solid var(--atlas-border-subtle);
+  border-bottom: 1px solid var(--atlas-border-subtle);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  overflow: visible;
+}
+
+.navFade {
+  width: 100%;
+}
+
+.navFade [data-fade-item] {
+  display: block;
+  width: 100%;
+}
+
+.stack {
+  display: grid;
+  width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  align-items: stretch;
+  gap: var(--project-grid-gap);
+  width: 100%;
+  padding: var(--project-grid-padding);
+  grid-area: 1 / 1;
+}
+
+@media (max-width: 720px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.grid[data-active="false"] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.cardFade {
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+  height: var(--project-card-height);
+}
+
+.cardFade [data-fade-item] {
+  display: flex;
+  flex: 1;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+}
+
+.cardFade :global(a),
+.cardFade :global(article) {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  flex: 1 1 auto;
+}

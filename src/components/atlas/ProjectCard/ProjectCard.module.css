@@ -1,0 +1,187 @@
+.link {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.link:focus-visible,
+.select:focus-visible {
+  outline: 2px solid var(--atlas-base-color-gray-12);
+  outline-offset: 2px;
+  border-radius: var(--project-card-radius);
+}
+
+.select {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  position: relative;
+}
+
+.link .card {
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.thumbnail {
+  flex: 1 0 0;
+  min-height: 0;
+  width: 100%;
+  background-color: var(--atlas-project-thumbnail-bg);
+  border-radius: var(--project-card-radius);
+  position: relative;
+  overflow: hidden;
+}
+
+.thumbnailImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--project-card-hover-duration) ease;
+}
+
+.card:hover .thumbnailImage,
+.link:hover .thumbnailImage,
+.select:hover .thumbnailImage {
+  transform: scale(1.02);
+}
+
+.disabled {
+  cursor: default;
+  pointer-events: auto;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(17, 17, 17, 0);
+  opacity: 0;
+  transition: background-color var(--project-card-hover-duration) ease,
+    opacity var(--project-card-hover-duration) ease;
+}
+
+.overlayLabel {
+  font-family: var(--font-geist);
+  font-size: var(--tab-font-size);
+  font-weight: 400;
+  line-height: var(--tab-line-height);
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.disabled:hover .overlay {
+  background-color: rgba(17, 17, 17, 0.45);
+  opacity: 1;
+}
+
+.disabled:hover .thumbnail {
+  background-color: #d8d8d8;
+}
+
+/* Project Info — Figma node 216:321; sibling of thumbnail */
+.info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  flex-shrink: 0;
+  padding: 0 var(--project-card-info-padding-x);
+  transition: height var(--project-card-hover-duration) ease,
+    opacity var(--project-card-hover-duration) ease;
+}
+
+.card:hover .info,
+.link:hover .info {
+  height: var(--project-card-info-height);
+  opacity: 1;
+}
+
+.title {
+  font-family: var(--font-geist);
+  font-size: var(--tab-font-size);
+  font-weight: 400;
+  line-height: var(--tab-line-height);
+  color: var(--atlas-base-color-gray-12);
+  white-space: nowrap;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--tab-gap);
+  min-width: 0;
+}
+
+.company {
+  font-family: var(--font-geist);
+  font-size: var(--tab-font-size);
+  font-weight: 400;
+  line-height: var(--tab-line-height);
+  color: var(--atlas-base-text-tertiary);
+  white-space: nowrap;
+}
+
+.role {
+  font-family: var(--font-geist);
+  font-size: var(--tab-font-size);
+  font-weight: 400;
+  line-height: var(--tab-line-height);
+  color: var(--atlas-base-color-gray-6);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thumbnailImage,
+  .info,
+  .overlay {
+    transition: none;
+  }
+
+  .card:hover .thumbnailImage {
+    transform: none;
+  }
+
+  .info {
+    height: var(--project-card-info-height);
+    opacity: 1;
+  }
+
+  .disabled .overlay {
+    background-color: rgba(17, 17, 17, 0.45);
+    opacity: 1;
+  }
+}

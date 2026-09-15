@@ -1,0 +1,104 @@
+/*
+ * Atlas Design System Tokens
+ * Extracted from Figma file MOo19C1y4SozSuYQK2U2Lh (node 211:1357)
+ */
+
+:root {
+  /* ── Color / Gray Scale ── */
+  --atlas-base-background-background: #ffffff;
+  --atlas-base-color-gray-1: #eeeeee;
+  --atlas-base-color-gray-2: #b3b3b3;
+  --atlas-base-color-gray-6: #3a3a3a;
+  --atlas-base-color-gray-8: #313131;
+  --atlas-base-color-gray-12: #111111;
+
+  /* ── Text ── */
+  --atlas-base-text-tertiary: #7b7b7b;
+
+  /* ── Tab ── */
+  --atlas-tab-foreground-active: #111111;
+  --atlas-tab-foreground-enabled: #606060;
+
+  /* ── Component-specific (hardcoded in Figma, not variables) ── */
+  --atlas-border-subtle: #f0f0f0;
+  --atlas-project-thumbnail-bg: #fafafa;
+
+  /* ── Radius ── */
+  --button-radius: 4px;
+  --project-card-radius: 4px;
+
+  /* ── Typography / Font Families ── */
+  --font-geist: var(--font-geist-sans), "Geist", system-ui, sans-serif;
+  --font-sf-pro: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro",
+    system-ui, sans-serif;
+  --font-diatype: "ABC Diatype", var(--font-geist), system-ui, sans-serif;
+  --font-42dot: "42dot Sans", var(--font-geist), system-ui, sans-serif;
+
+  /* ── Typography / Hero ── */
+  --hero-font-size: 36px;
+  --hero-letter-spacing: -0.72px;
+  --hero-line-height: normal;
+
+  /* ── Typography / Subtitle ── */
+  --subtitle-font-size: 16px;
+  --subtitle-letter-spacing: -0.32px;
+  --subtitle-line-height: normal;
+  --subtitle-max-width: 442px;
+  --case-study-max-width: 560px;
+
+  /* ── Typography / Tab ── */
+  --tab-font-size: 12px;
+  --tab-line-height: 16px;
+  --tab-padding-x: 12px;
+  --tab-padding-y: 8px;
+  --tab-border-width: 2px;
+  --tab-gap: 8px;
+
+  /* ── Typography / Button ── */
+  --button-font-size: 12px;
+  --button-padding-x: 12px;
+  --button-padding-y: 8px;
+
+  /* ── Typography / Breadcrumb ── */
+  --breadcrumb-font-size: 14px;
+  --breadcrumb-line-height: 16px;
+  --breadcrumb-gap: 8px;
+  --breadcrumb-icon-size: 16px;
+
+  /* ── Layout / Nav Bar ── */
+  --nav-height: 56px;
+  --nav-padding-x: 20px;
+  --nav-padding-y: 12px;
+  --nav-backdrop-blur: 5px;
+
+  /* ── Layout / Header ── */
+  --header-padding: 100px;
+  --header-gap: 40px;
+
+  /* ── Layout / Project Grid ── */
+  --project-grid-padding: 10px;
+  --project-grid-gap: 10px;
+  --project-card-min-width: 500px;
+  --project-card-height: 355px;
+  --project-card-info-padding-x: 12px;
+  --project-card-info-height: 40px;
+  --project-card-hover-duration: 0.25s;
+
+  /* ── Layout / Project Nav ── */
+  --project-nav-height: 56px;
+
+  /* ── Tab / Disabled ── */
+  --tab-disabled-opacity: 0.4;
+
+  /* ── Tooltip — Figma node 14:300 (enabled) ── */
+  --atlas-tooltip-bg: #191919;
+  --atlas-tooltip-border: #222222;
+  --atlas-tooltip-text: #ffffff;
+  --tooltip-radius: 4px;
+  --tooltip-font-size: 12px;
+  --tooltip-padding-x: 6px;
+  --tooltip-padding-y: 2px;
+
+  /* ── Layout / Nav Sections ── */
+  --nav-section-height: 32px;
+}
