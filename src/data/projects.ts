@@ -97,7 +97,7 @@ export const projectsByCategory: Record<ProjectCategory, Project[]> = {
       title: "Toph",
       company: "Lavalab",
       role: "Founding Designer",
-      imageSrc: "/projects/toph.png",
+      imageSrc: "/projects/toph.jpg",
       imageAlt: "Toph dashboard on a laptop, showing activity logs, a recording, and a field map",
       caseStudy: {
         summary: [
