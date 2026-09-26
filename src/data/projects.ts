@@ -80,7 +80,7 @@ export const projectsByCategory: Record<ProjectCategory, Project[]> = {
       title: "Nebula Design System",
       company: "Sift",
       role: "Design Systems Intern",
-      imageSrc: "/projects/nebula.png",
+      imageSrc: "/projects/nebula.jpg",
       imageAlt: "Nebula in light mode on a workstation monitor and a side panel of telemetry channels",
       disabled: true,
       caseStudy: sample(
