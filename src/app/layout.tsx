@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { FadeInProvider } from "@/components/FadeIn";
+import { Footer } from "@/components/Footer";
 import { NavBar } from "@/components/NavBar";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import "@/styles/globals.css";
@@ -31,6 +32,7 @@ export default function RootLayout({
           <div className={styles.shell}>
             <NavBar />
             {children}
+            <Footer />
           </div>
         </FadeInProvider>
       </body>

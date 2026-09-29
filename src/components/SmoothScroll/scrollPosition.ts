@@ -29,3 +29,15 @@ export function setSmoothScrollLocked(locked: boolean) {
 
   document.body.style.overflow = locked ? "hidden" : "";
 }
+
+export function scrollToTop() {
+  if (lenis) {
+    lenis.scrollTo(0);
+    return;
+  }
+
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+  window.scrollTo({ top: 0, left: 0, behavior: reduceMotion ? "auto" : "smooth" });
+}

@@ -125,6 +125,16 @@
   --menu-disabled-opacity: 0.4;
   --font-mono: ui-monospace, "SF Mono", "IBM Plex Mono", Menlo, monospace;
 
+  /* ── Footer — dark, high-contrast ── */
+  --atlas-footer-bg: #111111;           /* gray-12 */
+  --atlas-footer-text: #eeeeee;         /* gray-1 */
+  --atlas-footer-text-muted: #7b7b7b;   /* text-tertiary */
+  --atlas-footer-border: #222222;
+  --footer-padding-y: 48px;
+  --footer-padding-bottom: 24px;
+  --footer-gap: 64px;
+  --footer-column-gap: 64px;
+
   /* ── Layout / Nav Sections ── */
   --nav-section-height: 32px;
 }
@@ -140,5 +150,8 @@
     --nav-padding-x: 16px;
     --nav-padding-y: 10px;
     --breadcrumb-font-size: 13px;
+    --footer-padding-y: 40px;
+    --footer-gap: 40px;
+    --footer-column-gap: 48px;
   }
 }

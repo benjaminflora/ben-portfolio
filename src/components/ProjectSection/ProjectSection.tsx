@@ -140,10 +140,12 @@ function ProjectCardFade({
         company={project.company}
         role={project.role}
         href={
-          project.visual || project.disabled || !project.caseStudy
+          project.externalHref ??
+          (project.visual || project.disabled || !project.caseStudy
             ? undefined
-            : `/projects/${project.slug}`
+            : `/projects/${project.slug}`)
         }
+        external={Boolean(project.externalHref)}
         imageSrc={project.imageSrc}
         imageAlt={project.imageAlt}
         disabled={project.disabled}

@@ -79,6 +79,10 @@
   pointer-events: auto;
 }
 
+.link.disabled {
+  cursor: pointer;
+}
+
 .overlay {
   position: absolute;
   inset: 0;

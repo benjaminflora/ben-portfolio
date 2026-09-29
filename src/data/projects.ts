@@ -31,6 +31,8 @@ export interface Project {
   imageSrc?: string;
   imageAlt?: string;
   disabled?: boolean;
+  /** Opens in a new tab. Takes precedence over the case study route. */
+  externalHref?: string;
   visual?: boolean;
   caseStudy?: CaseStudyContent;
   caseStudyImages?: CaseStudyImage[];
@@ -83,6 +85,7 @@ export const projectsByCategory: Record<ProjectCategory, Project[]> = {
       imageSrc: "/projects/nebula.jpg",
       imageAlt: "Nebula in light mode on a workstation monitor and a side panel of telemetry channels",
       disabled: true,
+      externalHref: "https://siftstack.com",
       caseStudy: sample(
         "Nebula is Sift’s design system—tokens, components, and documentation for product surfaces that have to stay clear under operational pressure.",
         "Product UI was accumulating one-off patterns. The same control shipped with different spacing, type, and states depending on which screen it lived on.",

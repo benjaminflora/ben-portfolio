@@ -6,6 +6,8 @@ interface ProjectCardProps {
   company?: string;
   role?: string;
   href?: string;
+  /** When true, `href` opens in a new tab. */
+  external?: boolean;
   imageSrc?: string;
   imageAlt?: string;
   disabled?: boolean;
@@ -19,6 +21,7 @@ export function ProjectCard({
   company,
   role,
   href,
+  external = false,
   imageSrc,
   imageAlt = "",
   disabled = false,
@@ -57,6 +60,20 @@ export function ProjectCard({
       ) : null}
     </>
   );
+
+  if (external && href) {
+    return (
+      <a
+        href={href}
+        className={`${styles.link} ${classes}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`${title}, opens in a new tab`}
+      >
+        {inner}
+      </a>
+    );
+  }
 
   if (onSelect && !disabled) {
     return (
