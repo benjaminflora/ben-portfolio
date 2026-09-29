@@ -1,0 +1,51 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: var(--project-card-height);
+}
+
+.demo {
+  display: flex;
+  flex: 1 0 0;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  background-color: var(--atlas-project-thumbnail-bg);
+  border-radius: var(--project-card-radius);
+  cursor: pointer;
+  user-select: none;
+}
+
+.hint {
+  font-family: var(--font-geist);
+  font-size: var(--tab-font-size);
+  line-height: var(--tab-line-height);
+  color: var(--atlas-base-text-tertiary);
+}
+
+.info {
+  display: flex;
+  align-items: center;
+  gap: var(--tab-gap);
+  flex-shrink: 0;
+  height: var(--project-card-info-height);
+  padding: 0 var(--project-card-info-padding-x);
+}
+
+.title,
+.source {
+  font-family: var(--font-geist);
+  font-size: var(--tab-font-size);
+  font-weight: 400;
+  line-height: var(--tab-line-height);
+  white-space: nowrap;
+}
+
+.title {
+  color: var(--atlas-base-color-gray-12);
+}
+
+.source {
+  color: var(--atlas-base-text-tertiary);
+}

@@ -55,7 +55,7 @@ export const projectCategories: {
   { key: "design", label: "Design" },
   { key: "art", label: "Art" },
   { key: "writing", label: "Writing", disabled: true },
-  { key: "atlas", label: "Atlas", disabled: true },
+  { key: "atlas", label: "Atlas" },
 ];
 
 const sample = (
