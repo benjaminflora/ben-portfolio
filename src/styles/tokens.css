@@ -99,6 +99,32 @@
   --tooltip-padding-x: 6px;
   --tooltip-padding-y: 2px;
 
+  /* ── Contextual Menu — Nebula file UrhTGBJYTpi3JkdWWFb6Ze (node 10090:16768), light ── */
+  --atlas-menu-bg: #eff0ef;                        /* base/background/elevation300 */
+  --atlas-menu-border: #d8d9d7;                    /* dropdown/border/default · grayX/6 */
+  --atlas-menu-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1); /* base/elevation300Shadow */
+  --atlas-menu-item-bg-hover: #e6e7e5;             /* grayX/4 (estimated) */
+  --atlas-menu-item-bg-press: #dfe0de;             /* grayX/5 (estimated) */
+  --atlas-menu-item-fg: #20201e;                   /* grayX/12 */
+  --atlas-menu-secondary-fg: #828380;              /* grayX/10 */
+  --atlas-menu-destructive-fg: #cd000c;            /* redX/10 */
+  --atlas-menu-destructive-bg-hover: #e0101c;      /* redX/9 (estimated) */
+  --atlas-menu-destructive-bg-press: #cd000c;      /* redX/10 */
+  --atlas-menu-destructive-fg-active: #fcfcfc;     /* grayX/1 */
+  --menu-radius: 8px;
+  --menu-item-radius: 4px;
+  --menu-padding: 4px;
+  --menu-min-width: 260px;
+  --menu-item-padding-x: 4px;
+  --menu-item-padding-y: 6px;
+  --menu-item-height: 28px;
+  --menu-font-size: 12px;
+  --menu-line-height: 16px;
+  --menu-header-font-size: 10px;
+  --menu-header-line-height: 12px;
+  --menu-disabled-opacity: 0.4;
+  --font-mono: ui-monospace, "SF Mono", "IBM Plex Mono", Menlo, monospace;
+
   /* ── Layout / Nav Sections ── */
   --nav-section-height: 32px;
 }

@@ -1,0 +1,174 @@
+.trigger {
+  display: contents;
+}
+
+/* ── Menu — Dropdown / Contextual-Menu Variants ── */
+.menu {
+  position: fixed;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: var(--menu-min-width);
+  padding: var(--menu-padding);
+  overflow: clip;
+  background-color: var(--atlas-menu-bg);
+  border: 1px solid var(--atlas-menu-border);
+  border-radius: var(--menu-radius);
+  box-shadow: var(--atlas-menu-shadow);
+  outline: none;
+}
+
+.row {
+  display: flex;
+}
+
+.tooltip {
+  display: flex;
+  flex: 1;
+}
+
+/* ── Item — Dropdown Menu Item ── */
+.item {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 2px;
+  box-sizing: border-box;
+  min-height: var(--menu-item-height);
+  padding: var(--menu-item-padding-y) var(--menu-item-padding-x);
+  margin: 0;
+  border: 0;
+  border-radius: var(--menu-item-radius);
+  background: transparent;
+  color: var(--atlas-menu-item-fg);
+  font-family: var(--font-geist);
+  font-size: var(--menu-font-size);
+  line-height: var(--menu-line-height);
+  text-align: left;
+  cursor: default;
+  outline: none;
+}
+
+.item:focus,
+.item.expanded {
+  background-color: var(--atlas-menu-item-bg-hover);
+}
+
+.item:active {
+  background-color: var(--atlas-menu-item-bg-press);
+}
+
+.item[aria-disabled="true"] {
+  opacity: var(--menu-disabled-opacity);
+  background-color: transparent;
+}
+
+.destructive {
+  color: var(--atlas-menu-destructive-fg);
+}
+
+.destructive:focus {
+  background-color: var(--atlas-menu-destructive-bg-hover);
+  color: var(--atlas-menu-destructive-fg-active);
+}
+
+.destructive:active {
+  background-color: var(--atlas-menu-destructive-bg-press);
+  color: var(--atlas-menu-destructive-fg-active);
+}
+
+.leading {
+  display: flex;
+  flex: 1 0 0;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.icon {
+  display: flex;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.icon > * {
+  width: 16px;
+  height: 16px;
+}
+
+.label {
+  white-space: nowrap;
+}
+
+.value {
+  flex-shrink: 0;
+  padding-left: 16px;
+  color: var(--atlas-menu-secondary-fg);
+  white-space: nowrap;
+}
+
+.trailing {
+  flex-shrink: 0;
+  margin-left: 4px;
+  color: var(--atlas-menu-secondary-fg);
+}
+
+.destructive:focus .trailing,
+.destructive:active .trailing {
+  color: inherit;
+}
+
+/* ── Hotkey ── */
+.hotkey {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+}
+
+.key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--atlas-menu-border);
+  border-radius: var(--menu-item-radius);
+}
+
+.keyLetter {
+  font-family: var(--font-mono);
+  font-size: var(--menu-header-font-size);
+  line-height: var(--menu-header-line-height);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--atlas-menu-secondary-fg);
+}
+
+/* ── Dropdown / Option Group Header ── */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px;
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--atlas-menu-border);
+}
+
+.header {
+  font-family: var(--font-mono);
+  font-size: var(--menu-header-font-size);
+  line-height: var(--menu-header-line-height);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--atlas-menu-secondary-fg);
+  text-box: trim-both cap alphabetic;
+}
