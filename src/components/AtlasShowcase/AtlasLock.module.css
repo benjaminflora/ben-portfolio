@@ -1,0 +1,114 @@
+.lock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  grid-column: 1 / -1;
+  min-height: var(--project-card-height);
+  background-color: var(--atlas-project-thumbnail-bg);
+  border-radius: var(--project-card-radius);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 32px 16px;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.icon {
+  margin-bottom: 6px;
+  color: var(--atlas-base-color-gray-12);
+}
+
+.title {
+  font-family: var(--font-geist);
+  font-size: var(--subtitle-font-size);
+  letter-spacing: var(--subtitle-letter-spacing);
+  line-height: 20px;
+  color: var(--atlas-base-color-gray-12);
+}
+
+.subtitle {
+  font-family: var(--font-geist);
+  font-size: var(--tab-font-size);
+  line-height: var(--tab-line-height);
+  color: var(--atlas-base-text-tertiary);
+}
+
+.code {
+  display: flex;
+  gap: 8px;
+}
+
+.digit {
+  box-sizing: border-box;
+  width: 48px;
+  height: 56px;
+  padding: 0;
+  border: 1px solid var(--atlas-base-color-gray-2);
+  border-radius: var(--button-radius);
+  background-color: var(--atlas-base-background-background);
+  color: var(--atlas-base-color-gray-12);
+  font-family: var(--font-geist);
+  font-size: 20px;
+  text-align: center;
+  caret-color: var(--atlas-base-color-gray-12);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.digit:focus {
+  border-color: var(--atlas-base-color-gray-12);
+  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.08);
+}
+
+.error .digit {
+  border-color: var(--atlas-menu-destructive-fg);
+}
+
+.error {
+  animation: shake 0.3s ease;
+}
+
+.message {
+  min-height: var(--tab-line-height);
+  font-family: var(--font-geist);
+  font-size: var(--tab-font-size);
+  line-height: var(--tab-line-height);
+  color: var(--atlas-menu-destructive-fg);
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+@media (max-width: 720px) {
+  .digit {
+    width: 44px;
+    height: 52px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .error {
+    animation: none;
+  }
+}

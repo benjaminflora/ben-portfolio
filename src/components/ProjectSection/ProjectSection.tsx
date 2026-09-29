@@ -2,7 +2,7 @@
 
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { ProjectCard, TabGroup, type TabItem } from "@/components/atlas";
-import { AtlasShowcase } from "@/components/AtlasShowcase";
+import { AtlasLock, AtlasShowcase } from "@/components/AtlasShowcase";
 import { FadeInBlock } from "@/components/FadeIn";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import {
@@ -79,7 +79,11 @@ export function ProjectSection() {
               aria-hidden={isActive ? undefined : true}
               inert={isActive ? undefined : true}
             >
-              {category.key === "atlas" ? <AtlasShowcase /> : null}
+              {category.key === "atlas" ? (
+                <AtlasLock>
+                  <AtlasShowcase />
+                </AtlasLock>
+              ) : null}
               {projectsByCategory[category.key].map((project, index) => (
                 <ProjectCardFade
                   key={project.id}
