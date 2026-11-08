@@ -30,6 +30,25 @@
   width: 100%;
 }
 
+.bookletStage {
+  position: relative;
+  width: 100%;
+}
+
+/* "it all starts here.." beside the book, its arrow ending at the book's
+   left edge. Only where there's room for it next to the frame. */
+.bookletNote {
+  position: absolute;
+  right: calc(50% + var(--booklet-frame-size) / 2 + 4px);
+  bottom: 22%;
+}
+
+@media (max-width: 960px) {
+  .bookletNote {
+    display: none;
+  }
+}
+
 .chip {
   display: inline-flex;
   align-items: center;
@@ -80,6 +99,8 @@
   letter-spacing: normal;
   color: var(--atlas-base-color-gray-12);
   word-break: break-word;
+  /* Even line lengths. (Checked against "pretty" at 360–1440px: with the
+     current headline, pretty strands "autodidact." on its own line.) */
   text-wrap: balance;
 }
 
@@ -100,6 +121,24 @@
   /* Even line lengths so the centred block reads symmetric. */
   text-wrap: balance;
   word-break: break-word;
+}
+
+/* Phones: one line of headline less (wider measure, a point smaller), a
+   little air before the subtitle, and the subtitle's last sentence dropped,
+   so the hero doesn't read as one dense block. */
+@media (max-width: 720px) {
+  .heading {
+    font-size: 27px;
+    letter-spacing: -0.4px;
+  }
+
+  .body {
+    margin-top: 8px;
+  }
+
+  .subtitleExtra {
+    display: none;
+  }
 }
 
 /* Company names: a quiet underline that firms up on hover. */
@@ -391,7 +430,9 @@
 
 @media (max-width: 720px) {
   .hero {
-    padding-left: max(var(--header-padding), env(safe-area-inset-left));
-    padding-right: max(var(--header-padding), env(safe-area-inset-right));
+    /* Narrower than --header-padding so the headline fits on fewer lines
+       (see the phone rules above); still clear of the notch. */
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
   }
 }

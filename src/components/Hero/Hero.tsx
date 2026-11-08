@@ -3,6 +3,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { BookletViewer, type BookletViewerHandle } from "@/components/Booklet";
+import { DrawnNote } from "@/components/DrawnNote";
 import { FadeInBlock, FadeInText } from "@/components/FadeIn";
 import { useLoadInAnimation } from "@/components/FadeIn/FadeInProvider";
 import { ArrowDownIcon } from "@/components/icons/ArrowDownIcon";
@@ -15,12 +16,17 @@ import styles from "./Hero.module.css";
 
 // One flowing block so the browser can balance line lengths at every width.
 // Only "autodidact" is interactive — the rest of the line stays plain text.
+// Word joiners (U+2060) after the hyphens keep "product-oriented" and
+// "design-engineer" whole; invisible, and independent of the title font.
 const HEADING =
-  "I’m Ben, a product-oriented designer, entrepreneur, and autodidact shipping to prod.";
+  "I’m Ben, a product-\u2060oriented design-\u2060engineer and autodidact.";
 const TERM = "autodidact";
 const termAt = HEADING.indexOf(TERM);
 const HEADING_BEFORE = HEADING.slice(0, termAt).trimEnd();
 const HEADING_AFTER = HEADING.slice(termAt + TERM.length).trimStart();
+/** Just punctuation after the word (e.g. the closing period): kept inside the
+ * word's no-wrap box so it can't wrap onto a line of its own. */
+const HEADING_AFTER_IS_PUNCTUATION = /^[^\p{L}\p{N}\s]+$/u.test(HEADING_AFTER);
 const HEADING_DELAY = 0.05;
 const HEADING_STAGGER = 0.025;
 const HEADING_BEFORE_COUNT = HEADING_BEFORE.split(" ").length;
@@ -46,7 +52,7 @@ function isHoverPointer(pointerType: string) {
 }
 
 /** Dictionary entry for the one unusual word in the headline. */
-function AutodidactTerm({ delay }: { delay: number }) {
+function AutodidactTerm({ delay, trailing }: { delay: number; trailing?: string }) {
   const shouldAnimate = useLoadInAnimation();
   const entryId = useId();
   const wrapRef = useRef<HTMLSpanElement>(null);
@@ -278,6 +284,7 @@ function AutodidactTerm({ delay }: { delay: number }) {
           <path d="M8 10.6C26 8.2 40 5.2 58 8.8C78 12.2 94 5.6 116 9.2C136 12.4 154 5.8 176 9.4C196 12.6 214 6.2 236 9.6C256 12.4 274 7.2 294 9.8" />
         </svg>
       </button>
+      {trailing}
       {mounted
         ? createPortal(
             <div
@@ -323,6 +330,9 @@ function AutodidactTerm({ delay }: { delay: number }) {
 export function Hero() {
   const bookletRef = useRef<BookletViewerHandle>(null);
   const [scrolled, setScrolled] = useState(false);
+  // FadeInText renders word spans (each ending in a space) only while the
+  // load-in plays; otherwise the run is plain trimmed text.
+  const headingFades = useLoadInAnimation() === true;
 
   // The scroll cue bows out once the visitor starts scrolling.
   useEffect(() => {
@@ -336,9 +346,17 @@ export function Hero() {
     <section className={styles.hero}>
       <div className={styles.copy} data-hero-copy>
         {/* Load order: heading → subheading → nav → content (book, cards). */}
-        <FadeInBlock className={styles.bookletFade} delay="0.75s">
-          <BookletViewer ref={bookletRef} />
-        </FadeInBlock>
+        <div className={styles.bookletStage}>
+          <FadeInBlock className={styles.bookletFade} delay="0.75s">
+            <BookletViewer ref={bookletRef} />
+          </FadeInBlock>
+          {/* Atlas node 406:456 — written in once the book has faded in. */}
+          <DrawnNote
+            src="/art/notes/it-all-starts-here.svg"
+            delay={1.2}
+            className={styles.bookletNote}
+          />
+        </div>
         <FadeInBlock delay="0.8s">
           {/* Says the book is interactive; opens it. */}
           <button
@@ -361,19 +379,28 @@ export function Hero() {
             >
               {HEADING_BEFORE}
             </FadeInText>,
+            // HEADING_BEFORE is trimmed. The fade-in's last word span already
+            // ends in a space; the plain render (no load-in, e.g. navigating
+            // back to Home) doesn't, so add it there only, or it doubles.
+            headingFades ? null : " ",
             <AutodidactTerm
               key="term"
               delay={HEADING_DELAY + HEADING_BEFORE_COUNT * HEADING_STAGGER}
+              trailing={HEADING_AFTER_IS_PUNCTUATION ? HEADING_AFTER : undefined}
             />,
-            "\u00A0",
-            <FadeInText
-              key="after"
-              className={styles.headingRun}
-              delay={HEADING_DELAY + (HEADING_BEFORE_COUNT + 1) * HEADING_STAGGER}
-              stagger={HEADING_STAGGER}
-            >
-              {HEADING_AFTER}
-            </FadeInText>,
+            ...(HEADING_AFTER && !HEADING_AFTER_IS_PUNCTUATION
+              ? [
+                  "\u00A0",
+                  <FadeInText
+                    key="after"
+                    className={styles.headingRun}
+                    delay={HEADING_DELAY + (HEADING_BEFORE_COUNT + 1) * HEADING_STAGGER}
+                    stagger={HEADING_STAGGER}
+                  >
+                    {HEADING_AFTER}
+                  </FadeInText>,
+                ]
+              : []),
           ]}
         </div>
         <div className={styles.body}>
@@ -386,9 +413,12 @@ export function Hero() {
                 <CompanyLink href={COMPANY_HREF.sift}>Sift</CompanyLink>
               </strong>
               , prev. at <CompanyLink href={COMPANY_HREF.july}>July</CompanyLink> and{" "}
-              <CompanyLink href={COMPANY_HREF.afterquery}>AfterQuery</CompanyLink>. This
-              semester, I’ve been
-              researching sub-agent architecture for design-related tasks.
+              <CompanyLink href={COMPANY_HREF.afterquery}>AfterQuery</CompanyLink>.
+              {/* Dropped on phones, where the hero text gets too dense. */}
+              <span className={styles.subtitleExtra}>
+                {" "}This semester, I’ve been researching sub-agent architecture for
+                design-related tasks.
+              </span>
             </p>
           </FadeInBlock>
         </div>

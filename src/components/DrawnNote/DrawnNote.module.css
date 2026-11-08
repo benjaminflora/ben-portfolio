@@ -1,0 +1,11 @@
+/* Stays invisible until the strokes are dashed out, so the finished drawing
+   never flashes before it's written. */
+.note {
+  pointer-events: none;
+  user-select: none;
+  visibility: hidden;
+}
+
+.note[data-ready] {
+  visibility: visible;
+}
