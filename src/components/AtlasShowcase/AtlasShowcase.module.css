@@ -13,7 +13,7 @@
   min-height: 0;
   background-color: var(--atlas-project-thumbnail-bg);
   border-radius: var(--project-card-radius);
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   user-select: none;
 }
 

@@ -26,7 +26,6 @@ const HEADING_STAGGER = 0.025;
 const HEADING_BEFORE_COUNT = HEADING_BEFORE.split(" ").length;
 
 const TERM_SYLLABLES = ["au", "to", "di", "dact"] as const;
-const TERM_PRONUNCIATION = "/ˌɔːtoʊˈdaɪdækt/";
 const TERM_POS = "noun";
 const TERM_DEFINITION = "a self-taught person.";
 
@@ -58,6 +57,10 @@ function AutodidactTerm({ delay }: { delay: number }) {
   const pinnedRef = useRef(false);
   const pointerFocus = useRef(false);
   const pointerTypeRef = useRef("");
+  /** Mouse position while hovering; the card follows it. Null when the card
+   * was opened by keyboard or touch, which anchor it under the word. */
+  const cursorRef = useRef<{ x: number; y: number } | null>(null);
+  const placeRef = useRef<(() => void) | null>(null);
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -122,27 +125,46 @@ function AutodidactTerm({ delay }: { delay: number }) {
       entry.style.top = "";
       entry.style.left = "";
       delete entry.dataset.placement;
+      placeRef.current = null;
+      cursorRef.current = null;
       return;
     }
 
     const place = () => {
-      const rect = button.getBoundingClientRect();
-      if (rect.width === 0) return;
-
       const margin = 12;
       const width = entry.offsetWidth;
       const height = entry.offsetHeight;
+
+      // Pops up above by default; drops below only when the card would run
+      // under the fixed nav.
+      const topLimit =
+        (document.querySelector("header")?.getBoundingClientRect().bottom ?? 0) + margin;
+
+      // Hovering: sit just above-right of the pointer, flipping to the other
+      // side near the viewport edges.
+      const cursor = cursorRef.current;
+      if (cursor) {
+        const gap = 16;
+        let left = cursor.x + gap;
+        if (left + width > window.innerWidth - margin) left = cursor.x - gap - width;
+        let top = cursor.y - gap - height;
+        if (top < topLimit) top = cursor.y + gap;
+        entry.dataset.placement = "cursor";
+        entry.style.left = `${Math.round(Math.max(margin, left))}px`;
+        entry.style.top = `${Math.round(top)}px`;
+        return;
+      }
+
+      const rect = button.getBoundingClientRect();
+      if (rect.width === 0) return;
       let left = rect.left + rect.width / 2 - width / 2;
       left = Math.min(Math.max(margin, left), window.innerWidth - margin - width);
 
-      let top = rect.bottom;
-      let placement = "below";
-      if (top + height > window.innerHeight - margin) {
-        const above = rect.top - height;
-        if (above >= margin) {
-          placement = "above";
-          top = above;
-        }
+      let top = rect.top - height;
+      let placement = "above";
+      if (top < topLimit) {
+        top = rect.bottom;
+        placement = "below";
       }
 
       entry.dataset.placement = placement;
@@ -151,6 +173,7 @@ function AutodidactTerm({ delay }: { delay: number }) {
     };
 
     place();
+    placeRef.current = place;
 
     const onScroll = () => {
       const rect = button.getBoundingClientRect();
@@ -190,8 +213,14 @@ function AutodidactTerm({ delay }: { delay: number }) {
       onPointerEnter={(event) => {
         if (!isHoverPointer(event.pointerType) || !canHover()) return;
         cancelClose();
+        cursorRef.current = { x: event.clientX, y: event.clientY };
         hoveringRef.current = true;
         setOpen(true);
+      }}
+      onPointerMove={(event) => {
+        if (!isHoverPointer(event.pointerType) || !cursorRef.current) return;
+        cursorRef.current = { x: event.clientX, y: event.clientY };
+        placeRef.current?.();
       }}
       onPointerLeave={(event) => {
         if (!isHoverPointer(event.pointerType)) return;
@@ -213,6 +242,7 @@ function AutodidactTerm({ delay }: { delay: number }) {
         onClick={() => {
           const touch = pointerTypeRef.current === "touch" || !canHover();
           if (!touch) return;
+          cursorRef.current = null;
           setOpen((was) => {
             pinnedRef.current = !was;
             return !was;
@@ -220,7 +250,9 @@ function AutodidactTerm({ delay }: { delay: number }) {
         }}
         onFocus={(event) => {
           if (pointerFocus.current) return;
-          if (event.currentTarget.matches(":focus-visible")) setOpen(true);
+          if (!event.currentTarget.matches(":focus-visible")) return;
+          cursorRef.current = null;
+          setOpen(true);
         }}
         onBlur={() => {
           pointerFocus.current = false;
@@ -277,7 +309,6 @@ function AutodidactTerm({ delay }: { delay: number }) {
                     </span>
                   ))}
                 </p>
-                <p className={styles.pronunciation}>{TERM_PRONUNCIATION}</p>
                 <p className={styles.pos}>{TERM_POS}</p>
                 <p className={styles.definition}>{TERM_DEFINITION}</p>
               </div>

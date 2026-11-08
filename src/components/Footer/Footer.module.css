@@ -98,7 +98,7 @@
   line-height: var(--tab-line-height);
   color: var(--atlas-footer-text);
   text-decoration: none;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   transition: color 0.15s ease;
 }
 

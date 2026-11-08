@@ -18,7 +18,7 @@
   text-align: center;
   text-decoration: none;
   white-space: nowrap;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   transition: background-color 0.15s ease;
 }
 
@@ -112,7 +112,7 @@
 }
 
 .button:disabled {
-  cursor: default;
+  cursor: var(--cursor-default);
   opacity: var(--tab-disabled-opacity);
   pointer-events: none;
 }

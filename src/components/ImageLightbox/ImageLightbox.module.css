@@ -46,7 +46,7 @@
 
 .image {
   display: block;
-  cursor: default;
+  cursor: var(--cursor-default);
   width: auto;
   height: auto;
   max-width: min(1100px, calc(100vw - 48px));

@@ -63,7 +63,7 @@
 /* Drawing: the book settles flat and still so strokes land where you press. */
 .stage[data-drawing] {
   --book-pitch: 0deg;
-  cursor: default;
+  cursor: var(--cursor-default);
 }
 
 .stage[data-drawing] .float {
@@ -296,11 +296,10 @@
   background: var(--booklet-cover-bg);
 }
 
-/* Dark sandy outer covers; inside covers stay white. The grain is overlaid
-   on the base gray, with a soft falloff like light across matte stock. */
+/* Dark sandy outer covers. The grain is overlaid on the base gray, with a
+   soft falloff like light across matte stock. */
 .cover,
-.back,
-.insideCover {
+.back {
   background:
     var(--booklet-cover-sand) 0 0 / calc(var(--hair) * 180)
       calc(var(--hair) * 180),
@@ -309,32 +308,10 @@
   background-blend-mode: overlay, normal, normal;
 }
 
-/* Inside covers: the cover material turns in around the top, bottom and
-   outer edge, with an endpaper pasted down inside it (the spine edge has no
-   turn-in). Drawable like any page. */
-.insideCover::before {
-  content: "";
-  position: absolute;
-  top: var(--booklet-turn-in);
-  bottom: var(--booklet-turn-in);
-  background: var(--booklet-endpaper);
-  /* The board's lip catches a little shadow along the endpaper edge. */
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.18),
-    0 0 6px rgba(0, 0, 0, 0.28);
-  pointer-events: none;
-}
-
-/* Front inside cover sits on the left of the spread: spine on its right. */
-.backFace.insideCover::before {
-  left: var(--booklet-turn-in);
-  right: 0;
-}
-
-/* Back inside cover sits on the right: spine on its left. */
-.front.insideCover::before {
-  left: 0;
-  right: var(--booklet-turn-in);
+/* Inside covers: plain white paper like the pages, left blank for visitors
+   to draw on. */
+.insideCover {
+  background: var(--booklet-page-bg);
 }
 
 .cover {
@@ -476,7 +453,7 @@
   padding: 2px 4px;
   font-family: inherit;
   color: inherit;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   transition: color 0.2s ease;
 }
 
@@ -486,7 +463,7 @@
 
 .counterStep:disabled {
   opacity: 0.35;
-  cursor: default;
+  cursor: var(--cursor-default);
 }
 
 .counterStep:focus-visible {

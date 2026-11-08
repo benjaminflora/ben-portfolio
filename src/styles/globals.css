@@ -31,10 +31,28 @@ a {
   text-decoration: none;
 }
 
+/* The arrow everywhere; links get the hand, text fields keep the I-beam. */
+html {
+  cursor: var(--cursor-default);
+}
+
+a[href],
+summary,
+label[for],
+select {
+  cursor: var(--cursor-pointer);
+}
+
+input:not([type="button"], [type="submit"], [type="checkbox"], [type="radio"]),
+textarea,
+[contenteditable="true"] {
+  cursor: text;
+}
+
 button {
   background: none;
   border: none;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   font: inherit;
   color: inherit;
   padding: 0;

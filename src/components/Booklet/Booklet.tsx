@@ -264,16 +264,11 @@ function SketchPage({ sketch, pageId }: { sketch?: Sketch; pageId: string }) {
   );
 }
 
-/** Empty pages after Ben's drawings, for visitors to draw on. */
-const BLANK_PAGES = 6;
-
 function buildFaces(items: Sketch[]): Face[] {
-  // Drawings, then blank pages, filling both sides of each sheet; pad to an
-  // even count. Blank pages each need their own id so drawings stay put.
-  const pages: (Sketch | undefined)[] = [
-    ...items,
-    ...Array.from({ length: BLANK_PAGES }, () => undefined),
-  ];
+  // Ben's drawings fill both sides of each sheet; visitors draw on the blank
+  // inside covers. An odd count is padded with one blank page so every sheet
+  // has two sides; blank pages each need their own id so drawings stay put.
+  const pages: (Sketch | undefined)[] = [...items];
   if (pages.length % 2 === 1) pages.push(undefined);
   let blank = 0;
 
@@ -321,9 +316,10 @@ const LEAF_COUNT = leaves.length;
 const DRAWABLE_SPREADS = Array.from({ length: LEAF_COUNT - 1 }, (_, i) => i + 1).filter(
   (n) => faces[n * 2 - 1].drawable || faces[n * 2].drawable,
 );
-/** Where a pen picked up on a cover opens to: the first spread of blank pages. */
+/** Where a pen picked up on a cover opens to: the first spread with a blank
+ * page (the inside front cover). */
 const FIRST_BLANK_SPREAD =
-  DRAWABLE_SPREADS.find((n) => faces[n * 2 - 1].blank && faces[n * 2].blank) ??
+  DRAWABLE_SPREADS.find((n) => faces[n * 2 - 1].blank || faces[n * 2].blank) ??
   DRAWABLE_SPREADS[0];
 
 type Drag = { leaf: number; progress: number };

@@ -6,7 +6,7 @@
   height: 100%;
   min-width: 0;
   color: inherit;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   text-decoration: none;
 }
 
@@ -28,7 +28,7 @@
   border: 0;
   background: transparent;
   color: inherit;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   text-align: left;
 }
 
@@ -81,12 +81,12 @@
 }
 
 .disabled {
-  cursor: default;
+  cursor: var(--cursor-default);
   pointer-events: auto;
 }
 
 .link.disabled {
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 
 .overlay {

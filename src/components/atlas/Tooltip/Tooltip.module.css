@@ -3,7 +3,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  cursor: default;
+  cursor: var(--cursor-default);
 }
 
 .bubble {

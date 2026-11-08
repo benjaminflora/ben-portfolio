@@ -48,7 +48,10 @@ export function AboutContent() {
         >
           <div className={styles.sectionBody}>
             {BIO.map((paragraph) => (
-              <div key={paragraph} className={styles.paragraph}>
+              <div
+                key={paragraph}
+                className={`${styles.paragraph} ${styles.paragraphIntro}`}
+              >
                 <FadeInText lines>{paragraph}</FadeInText>
               </div>
             ))}

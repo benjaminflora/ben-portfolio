@@ -29,7 +29,7 @@
   line-height: normal;
   color: inherit;
   text-decoration: none;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   /* Leaving the list: dissolve back to enabled, ease-out. */
   transition:
     opacity var(--index-motion-duration) ease-out,
@@ -52,7 +52,7 @@
 
 /* Unlinked rows aren't clickable, so no pointer or press. */
 div.row {
-  cursor: default;
+  cursor: var(--cursor-default);
 }
 
 /* Press — Figma 141:1210: subtle fill behind the row. */

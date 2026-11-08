@@ -4,6 +4,12 @@
  */
 
 :root {
+  /* ── Cursors — black arrow and hand with a white rim (public/cursors).
+     Hotspots sit on the arrow tip and the fingertip; system cursors are the
+     fallback. ── */
+  --cursor-default: url("/cursors/arrow.svg") 5 3, default;
+  --cursor-pointer: url("/cursors/hand.svg") 9 2, pointer;
+
   /* ── Color / Gray Scale — Figma variables, node 290:317 ── */
   --atlas-base-background-background: #ffffff;
   --atlas-base-color-gray-1: #fcfcfc;
@@ -176,9 +182,6 @@
   --reader-card-radius: 16px;
   --reader-backdrop: rgba(17, 17, 17, 0.28);
   --booklet-page-bg: #fbfcfe;
-  /* Inside covers: warm endpaper inside a rim of turned-in cover material. */
-  --booklet-endpaper: #f1eee6;
-  --booklet-turn-in: calc(var(--page-w) * 0.04);
   --booklet-ink: #4f5d72;
 
   /* ── Sketchbook pens ── */
@@ -199,7 +202,7 @@
 
   /* ── Layout / Project Grid — Figma node 290:346 ── */
   --project-grid-padding: 50px;
-  --project-grid-gap: 50px;
+  --project-grid-gap: 20px;
   /* Cards stop growing on very wide screens (Figma lays the grid out at 1512). */
   --project-grid-max-width: 1600px;
   --project-card-padding: 20px;

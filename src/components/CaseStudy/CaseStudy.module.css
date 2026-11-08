@@ -201,6 +201,16 @@
   color: var(--atlas-base-text-body);
 }
 
+/* About bio: the home hero subtitle's type (Hero .subtitle), so the two
+   introductions read the same. */
+.paragraphIntro {
+  font-size: var(--subtitle-font-size);
+  font-weight: 500;
+  line-height: var(--home-hero-body-line-height);
+  letter-spacing: var(--home-hero-body-letter-spacing);
+  color: var(--atlas-base-text-tertiary);
+}
+
 /* Figma node 376:2461 — a strip of equal cells with 1px dividers (the grid
    gap shows the border colour behind white cells); wraps on phones. */
 .metricsFade,

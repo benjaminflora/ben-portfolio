@@ -110,7 +110,7 @@
   text-align: start;
   overflow: hidden;
   text-overflow: ellipsis;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 
 .breadcrumbBack:hover {

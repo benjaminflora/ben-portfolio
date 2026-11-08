@@ -4,7 +4,7 @@
   justify-content: center;
   padding: var(--tab-padding-y) var(--tab-padding-x);
   flex-shrink: 0;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   background: none;
   border: none;
   border-bottom: var(--tab-border-width) solid transparent;
@@ -45,7 +45,7 @@
 }
 
 .disabled {
-  cursor: default;
+  cursor: var(--cursor-default);
   pointer-events: none;
   color: var(--atlas-tab-foreground-enabled);
   -webkit-text-fill-color: var(--atlas-tab-foreground-enabled);

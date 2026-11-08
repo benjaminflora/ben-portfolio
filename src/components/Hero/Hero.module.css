@@ -42,7 +42,7 @@
   font-size: var(--subtitle-font-size);
   letter-spacing: -0.4px;
   line-height: normal;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   transition: background-color 0.2s ease;
 }
 
@@ -232,7 +232,7 @@
   letter-spacing: inherit;
   line-height: inherit;
   white-space: nowrap;
-  cursor: help;
+  cursor: var(--cursor-default);
   border-radius: 2px;
   -webkit-tap-highlight-color: transparent;
 }
@@ -297,13 +297,21 @@
   padding-bottom: 8px;
 }
 
+/* Following the mouse: no hover bridge, and the pointer passes through so the
+   card never gets in the way of the word it describes. */
+.entry[data-placement="cursor"] {
+  padding: 0;
+  pointer-events: none;
+}
+
 .entryCard {
   padding: 10px 12px 11px;
-  background: var(--atlas-base-background-background);
-  border: 1px solid color-mix(in srgb, var(--atlas-base-color-gray-12) 12%, transparent);
+  /* Black, like the Atlas tooltips. */
+  background: var(--atlas-tooltip-bg);
+  border: 1px solid var(--atlas-tooltip-border);
   border-radius: 6px;
   box-shadow: var(--atlas-shadow-soft);
-  color: var(--atlas-base-color-gray-12);
+  color: var(--atlas-tooltip-text);
   font-family: var(--font-sans);
   font-weight: 400;
   font-style: normal;
@@ -323,21 +331,13 @@
 }
 
 .syllableDot {
-  color: var(--atlas-base-text-tertiary);
+  color: color-mix(in srgb, var(--atlas-tooltip-text) 45%, transparent);
   font-weight: 400;
 }
 
-.pronunciation {
-  margin-top: 2px;
-  color: var(--atlas-base-text-tertiary);
-  font-size: 13px;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-}
-
 .pos {
-  margin-top: 1px;
-  color: var(--atlas-base-text-tertiary);
+  margin-top: 2px;
+  color: color-mix(in srgb, var(--atlas-tooltip-text) 60%, transparent);
   font-size: 13px;
   font-style: italic;
 }

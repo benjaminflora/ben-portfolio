@@ -64,7 +64,7 @@
   line-height: 16px;
   text-align: left;
   white-space: nowrap;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   outline: none;
   user-select: none;
   transition:
@@ -91,7 +91,7 @@
   opacity: var(--tab-disabled-opacity);
   background-color: transparent;
   color: var(--atlas-button-ghost-fg);
-  cursor: default;
+  cursor: var(--cursor-default);
 }
 
 .destructive {
