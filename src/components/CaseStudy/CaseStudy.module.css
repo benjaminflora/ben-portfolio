@@ -19,8 +19,9 @@
 /* About: portrait to the left of the meta + name. */
 .identity {
   display: flex;
-  align-items: center;
-  gap: 20px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
   min-width: 0;
 }
 
@@ -32,7 +33,8 @@
   flex-shrink: 0;
   width: var(--portrait-size);
   height: var(--portrait-size);
-  border-radius: 50%;
+  /* A square print with a hairline edge, like the case-study figures. */
+  border-radius: var(--case-figure-radius);
   object-fit: cover;
   box-shadow: 0 0 0 1px var(--atlas-border-subtle);
 }

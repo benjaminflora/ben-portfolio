@@ -18,16 +18,16 @@ export function AboutContent() {
   return (
     <article className={styles.page}>
       <header className={styles.header}>
-        {/* Portrait beside the name, as on a profile, flush with the bio. */}
+        {/* Square photo above the name, flush left with the bio. */}
         <div className={styles.identity}>
           {/* Same load-in as the rest of the page, just ahead of the name. */}
           <FadeInBlock className={styles.portraitFade} delay="0s">
             <img
-              src="/brand/ben-portrait.jpg"
-              alt="Benjamin Flora"
+              src="/brand/ben-photo.jpg"
+              alt="Benjamin Flora standing on a boulder among pine trees"
               className={styles.portrait}
-              width={72}
-              height={72}
+              width={720}
+              height={720}
             />
           </FadeInBlock>
           <div className={styles.headerText}>

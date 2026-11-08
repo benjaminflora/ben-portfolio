@@ -75,7 +75,7 @@
   --case-study-max-width: 800px;
   /* One rhythm between every element in those pages. */
   --case-study-gap: 32px;
-  --portrait-size: 72px;
+  --portrait-size: 200px;
 
   /* ── Typography / Tab ── */
   --tab-font-size: 12px;
@@ -301,7 +301,7 @@
     --studio-pen-visible: 160px;
     --hero-font-size: 24px;
     --page-title-font-size: 32px;
-    --portrait-size: 56px;
+    --portrait-size: 160px;
 
     --section-title-font-size: 20px;
     --body-font-size: 16px;
