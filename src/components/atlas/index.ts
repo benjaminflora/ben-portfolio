@@ -1,9 +1,14 @@
-export { Button } from "./Button";
+export { Button, buttonClassName } from "./Button";
+export type { ButtonVariant, ButtonShape, ButtonProps } from "./Button";
+export { SplitButton } from "./SplitButton";
 export { Tab } from "./Tab";
 export type { TabState } from "./Tab";
 export { TabGroup } from "./TabGroup";
 export type { TabItem } from "./TabGroup";
 export { ProjectCard } from "./ProjectCard";
+export { IndexList } from "./IndexList";
+export { StatusIndicator } from "./StatusIndicator";
+export type { IndexListItem } from "./IndexList";
 export { Tooltip } from "./Tooltip";
 export { ContextualMenu } from "./ContextualMenu";
 export type { ContextualMenuEntry } from "./ContextualMenu";

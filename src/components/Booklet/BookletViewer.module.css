@@ -1,0 +1,179 @@
+/* Hero frame — Figma node 332:1254 (283 × 283), a very subtle off-white plate. */
+.frame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--booklet-frame-size);
+  height: var(--booklet-frame-size);
+  max-width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--booklet-frame-bg);
+  border-radius: var(--booklet-frame-radius);
+  cursor: zoom-in;
+  outline: none;
+}
+
+.frame:hover,
+.frame:focus-visible {
+  --lift: 1;
+}
+
+.frame:focus-visible {
+  box-shadow: 0 0 0 2px var(--atlas-base-color-gray-12);
+}
+
+/* The overlay's copy takes over while the viewer is up. */
+.frame[data-hidden] {
+  visibility: hidden;
+}
+
+/* ── Full-screen viewer ── */
+
+/* The page around the open card: dimmed, and a click target for closing. */
+.backdrop {
+  position: fixed;
+  inset: var(--nav-height) 0 0 0;
+  z-index: 99;
+  background: var(--reader-backdrop);
+  opacity: 0;
+  pointer-events: none;
+  cursor: zoom-out;
+  transition: opacity var(--booklet-fall-duration) var(--booklet-fall-ease);
+}
+
+.backdrop[data-phase="open"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.backdrop[data-phase="entering"] {
+  transition: none;
+}
+
+/* Starts below the nav so the nav stays visible and usable while reading. */
+.overlay {
+  position: fixed;
+  inset: var(--nav-height) 0 0 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Leaves room for the pens standing below the book. */
+  --booklet-reader-max-vh: 50vh;
+  background: var(--booklet-reader-bg);
+  outline: none;
+  /* The reader handles its own pinch/pan (useReaderZoom); stop the browser
+     zooming or scrolling the page underneath. */
+  touch-action: none;
+  transition: clip-path var(--booklet-fall-duration) var(--booklet-fall-ease);
+}
+
+/* Phones: the default 46vw page puts an open spread nearly edge to edge, so
+   the page-block edges and tilt get cut off by the card. Keep a 24px gutter
+   inside the card either side of the spread. */
+@media (max-width: 720px) {
+  .overlay {
+    --booklet-reader-max-vw: calc(50vw - var(--reader-card-inset) - 24px);
+  }
+}
+
+.bookWrap {
+  /* Lifts the book clear of the pens standing along the bottom. */
+  --book-lift: calc(var(--studio-pen-visible) - var(--studio-pen-rest));
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: var(--book-lift);
+  /* Scale about the book itself (not the padded box), so the fall into and
+     out of the hero frame tracks the book exactly. */
+  transform-origin: 50% calc((100% - var(--book-lift)) / 2);
+  transition:
+    transform var(--booklet-fall-duration) var(--booklet-fall-ease),
+    padding-bottom 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Hero frame's plate inside the reader, cross-fading with the reader's own
+   background so the two match at both ends of the fall. */
+.frameGhost {
+  position: absolute;
+  background: var(--booklet-frame-bg);
+  pointer-events: none;
+  transition: opacity var(--booklet-fall-duration) var(--booklet-fall-ease);
+}
+
+/* First frame snaps onto the hero frame; motion starts from there. */
+.overlay[data-phase="entering"],
+.overlay[data-phase="entering"] .bookWrap,
+.overlay[data-phase="entering"] .frameGhost {
+  transition: none;
+}
+
+.chrome {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.overlay[data-phase="open"] .chrome {
+  opacity: 1;
+  transition-delay: calc(var(--booklet-fall-duration) * 0.6);
+}
+
+/* Pinch-zoom layer: fills the book area and scales from its top-left. */
+.zoomLayer {
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* Back out of the book — top-left of the card. */
+.back {
+  position: absolute;
+  top: calc(var(--reader-card-inset) + 16px);
+  left: calc(var(--reader-card-inset) + 16px);
+  pointer-events: auto;
+}
+
+/* Arrow points back; keeps the button's left padding even with the icon. */
+.back :global(button) {
+  --button-padding-start: 10px;
+}
+
+.backIcon {
+  transform: rotate(180deg);
+}
+
+.zoomReset {
+  position: absolute;
+  top: calc(var(--reader-card-inset) + 12px);
+  right: calc(var(--reader-card-inset) + 12px);
+  padding: 6px 10px;
+  border-radius: var(--chip-radius);
+  background: var(--atlas-button-secondary-bg);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--atlas-base-text-secondary);
+  pointer-events: auto;
+}
+
+.zoomReset:hover {
+  background: var(--atlas-button-secondary-bg-hover);
+}
+
+/* Pen tray, laid over the whole reader. */
+.chrome {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .bookWrap {
+    transition-duration: 0.01s;
+  }
+}

@@ -1,0 +1,545 @@
+/* Figma node 332:1254 — Frosted glass magazine (283 × 283 stage) */
+
+/* Registered so the reader can ease the book smaller when trays slide in. */
+@property --page-w {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+.stage {
+  --page-w: var(--booklet-page-width);
+  --page-h: calc(var(--page-w) * var(--booklet-page-ratio));
+  /* Book + floor shadow are centred as one optical group. The soft shadow
+     carries about half the visual weight of its box, so the book rises by
+     half of (gap + half the shadow) and the shadow hangs the gap below it. */
+  --shadow-h: calc(var(--page-w) * 0.2);
+  --shadow-gap: calc(var(--page-h) * 0.06);
+  --group-offset: calc((var(--shadow-gap) + var(--shadow-h) / 2) / -2);
+  /* Cancels the sideways drift a tilted closed cover picks up in perspective. */
+  --closed-nudge: 0;
+  --turn: var(--booklet-turn-duration) cubic-bezier(0.22, 0.75, 0.2, 1);
+  /* One CSS pixel at the desktop hero size (147px page). Cover details are
+     sized in these so the reader's copy, scaled down onto the hero frame,
+     renders the same grain and shading as the hero's own copy at hand-off. */
+  --hair: calc(var(--page-w) / 147);
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: var(--booklet-stage-height);
+  /* Scales with the book, so the small and full-size copies foreshorten
+     identically and hand off without a change in shape. */
+  perspective: calc(var(--page-w) * 9.5);
+  perspective-origin: 50% 50%;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+}
+
+.stage[data-interactive] {
+  cursor: grab;
+}
+
+.stage[data-dragging] {
+  cursor: grabbing;
+}
+
+/* Full-screen viewer — an open spread (two pages) fits the viewport. */
+.reader {
+  --page-w: min(
+    var(--booklet-reader-page-width),
+    var(--booklet-reader-max-vw, 46vw),
+    calc(var(--booklet-reader-max-vh, 62vh) / var(--booklet-page-ratio))
+  );
+  height: 100%;
+  transition: --page-w 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+}
+
+/* Drawing: the book settles flat and still so strokes land where you press. */
+.stage[data-drawing] {
+  --book-pitch: 0deg;
+  cursor: default;
+}
+
+.stage[data-drawing] .float {
+  animation: none;
+  transform: translateY(var(--group-offset));
+  transition: transform 0.4s ease;
+}
+
+/* Idle drift + pointer-follow tilt. `translate`/`rotate` carry the drift so
+   they compose with the tilt in `transform`. */
+.float {
+  position: relative;
+  display: flex;
+  transform-style: preserve-3d;
+  transform: translateY(var(--group-offset))
+    rotateY(calc(var(--px, 0) * 14deg)) rotateX(calc(var(--py, 0) * -10deg));
+  animation: bookFloat var(--booklet-float-duration) ease-in-out infinite;
+}
+
+/* Starts and ends at rest, so a book that stops or restarts drifting does it
+   from the neutral pose (what the reader hands back to the hero frame). */
+@keyframes bookFloat {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: 0 1 0 0deg;
+  }
+  25% {
+    translate: 0 calc(var(--page-h) * -0.012);
+    rotate: 0 1 0 -1.5deg;
+  }
+  75% {
+    translate: 0 calc(var(--page-h) * 0.012);
+    rotate: 0 1 0 1.5deg;
+  }
+}
+
+/* A ring on the 3D book renders as a skewed box, so mark the stage edge. */
+.stage:focus-visible {
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.12);
+}
+
+.book {
+  position: relative;
+  flex-shrink: 0;
+  width: calc(var(--page-w) * 2);
+  height: var(--page-h);
+  transform-style: preserve-3d;
+  /* Tilt around the facing page so the book stays centred in every state. */
+  transform-origin: calc(50% - var(--shift)) 50%;
+  transform: translateX(
+      calc(
+        var(--shift) + var(--page-w) * var(--closed-nudge) *
+          (var(--front-closed) - var(--back-closed))
+      )
+    )
+    translateY(calc(var(--lift, 0) * -6px))
+    rotateX(var(--book-pitch, 8deg))
+    rotateY(calc(-12deg * var(--front-closed) + 12deg * var(--back-closed)))
+    rotateZ(calc(-1.5deg * var(--front-closed) + 1.5deg * var(--back-closed)));
+  transition: transform var(--turn);
+}
+
+.stage[data-dragging] .book {
+  transition: none;
+}
+
+.leaf {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--page-w);
+  height: var(--page-h);
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  /* --z is in hairs, so the stack keeps its depth at any book size. */
+  transform: translateZ(calc(var(--z) * var(--hair))) rotateY(var(--angle));
+  transition: transform var(--turn);
+}
+
+.leaf[data-dragged] {
+  transition: none;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* Transparent outline makes Chrome antialias edges of 3D-transformed faces. */
+  outline: 1px solid transparent;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.front {
+  border-radius: 1px 3px 3px 1px;
+}
+
+.backFace {
+  transform: rotateY(180deg);
+  border-radius: 3px 1px 1px 3px;
+}
+
+/* ── Page block — stacked sheet edges under each half of the spread ──
+   Edges show along the bottom and outer side (the book is pitched toward
+   us), and each stack thickens with the share of pages lying on it. */
+
+.block {
+  --edge: #e6e4de;
+  --sheet: #f8f7f3;
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  background: var(--sheet);
+  transform: translateZ(calc(var(--hair) * -0.5));
+  pointer-events: none;
+  /* Eases thickness as a turned page lands on, or lifts off, a stack. */
+  transition: box-shadow 0.35s ease;
+}
+
+.blockLeft {
+  --depth: var(--left-depth);
+  --t: calc(var(--page-w) * 0.03 * var(--depth));
+  left: 0;
+  border-radius: 3px 0 0 3px;
+  box-shadow:
+    calc(var(--t) * -0.08) calc(var(--t) * 0.25) 0 var(--edge),
+    calc(var(--t) * -0.16) calc(var(--t) * 0.5) 0 var(--sheet),
+    calc(var(--t) * -0.24) calc(var(--t) * 0.75) 0 var(--edge),
+    calc(var(--t) * -0.32) var(--t) 0 var(--sheet),
+    calc(var(--t) * -0.34) calc(var(--t) * 1.08) 0 rgba(20, 20, 30, 0.18),
+    calc(var(--t) * -0.6) calc(var(--t) * 1.6) calc(var(--t) * 2.2) rgba(0, 0, 0, 0.16);
+}
+
+.blockRight {
+  --depth: var(--right-depth);
+  --t: calc(var(--page-w) * 0.03 * var(--depth));
+  left: 50%;
+  border-radius: 0 3px 3px 0;
+  box-shadow:
+    calc(var(--t) * 0.08) calc(var(--t) * 0.25) 0 var(--edge),
+    calc(var(--t) * 0.16) calc(var(--t) * 0.5) 0 var(--sheet),
+    calc(var(--t) * 0.24) calc(var(--t) * 0.75) 0 var(--edge),
+    calc(var(--t) * 0.32) var(--t) 0 var(--sheet),
+    calc(var(--t) * 0.34) calc(var(--t) * 1.08) 0 rgba(20, 20, 30, 0.18),
+    calc(var(--t) * 0.6) calc(var(--t) * 1.6) calc(var(--t) * 2.2) rgba(0, 0, 0, 0.16);
+}
+
+/* Gutter — pages dip into the spine and catch light as they curve back up. */
+.gutter {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.front .gutter {
+  background: linear-gradient(
+    to right,
+    rgba(25, 25, 35, 0.2) 0%,
+    rgba(25, 25, 35, 0.08) 3%,
+    rgba(255, 255, 255, 0.07) 9%,
+    transparent 22%,
+    transparent 92%,
+    rgba(25, 25, 35, 0.035) 100%
+  );
+}
+
+.backFace .gutter {
+  background: linear-gradient(
+    to left,
+    rgba(25, 25, 35, 0.2) 0%,
+    rgba(25, 25, 35, 0.08) 3%,
+    rgba(255, 255, 255, 0.07) 9%,
+    transparent 22%,
+    transparent 92%,
+    rgba(25, 25, 35, 0.035) 100%
+  );
+}
+
+/* Hardcover hinge groove just in from the spine. */
+.cover .gutter {
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.25) 0%,
+    transparent 2.5%,
+    transparent 5.5%,
+    rgba(0, 0, 0, 0.32) 6.5%,
+    rgba(255, 255, 255, 0.08) 7.5%,
+    transparent 9%
+  );
+}
+
+.back .gutter {
+  background: linear-gradient(
+    to left,
+    rgba(0, 0, 0, 0.25) 0%,
+    transparent 2.5%,
+    transparent 5.5%,
+    rgba(0, 0, 0, 0.32) 6.5%,
+    rgba(255, 255, 255, 0.08) 7.5%,
+    transparent 9%
+  );
+}
+
+/* Fold shading — darkens toward the spine while a page is mid-turn. */
+.shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: calc(var(--fold) * 0.9);
+  transition: opacity var(--turn);
+}
+
+.front .shade {
+  background: linear-gradient(to right, rgba(20, 40, 70, 0.22), transparent 45%);
+}
+
+.backFace .shade {
+  background: linear-gradient(to left, rgba(20, 40, 70, 0.22), transparent 45%);
+}
+
+.leaf[data-dragged] .shade {
+  transition: none;
+}
+
+/* ── Solid outer pages ── */
+
+.solid {
+  background: var(--booklet-cover-bg);
+}
+
+/* Dark sandy outer covers; inside covers stay white. The grain is overlaid
+   on the base gray, with a soft falloff like light across matte stock. */
+.cover,
+.back,
+.insideCover {
+  background:
+    var(--booklet-cover-sand) 0 0 / calc(var(--hair) * 180)
+      calc(var(--hair) * 180),
+    radial-gradient(120% 90% at 30% 20%, rgba(255, 255, 255, 0.07), transparent 60%),
+    var(--booklet-cover-outside-bg);
+  background-blend-mode: overlay, normal, normal;
+}
+
+/* Inside covers: the cover material turns in around the top, bottom and
+   outer edge, with an endpaper pasted down inside it (the spine edge has no
+   turn-in). Drawable like any page. */
+.insideCover::before {
+  content: "";
+  position: absolute;
+  top: var(--booklet-turn-in);
+  bottom: var(--booklet-turn-in);
+  background: var(--booklet-endpaper);
+  /* The board's lip catches a little shadow along the endpaper edge. */
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.18),
+    0 0 6px rgba(0, 0, 0, 0.28);
+  pointer-events: none;
+}
+
+/* Front inside cover sits on the left of the spread: spine on its right. */
+.backFace.insideCover::before {
+  left: var(--booklet-turn-in);
+  right: 0;
+}
+
+/* Back inside cover sits on the right: spine on its left. */
+.front.insideCover::before {
+  left: 0;
+  right: var(--booklet-turn-in);
+}
+
+.cover {
+  box-shadow:
+    inset calc(var(--hair) * 3) 0 calc(var(--hair) * 4) calc(var(--hair) * -2)
+      rgba(0, 0, 0, 0.6),
+    inset 0 0 0 var(--hair) rgba(255, 255, 255, 0.06);
+}
+
+/* BF mark stamped on the front cover: light ink, masked by the logo and a
+   patchy wear noise so it reads as an uneven rubber-stamp impression. */
+.cover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* A finished image (logo × worn ink, baked from bf-mark.svg): no masks or
+     blend modes, which iOS composites unevenly on the 3D page faces. */
+  background: var(--booklet-stamp) center / var(--booklet-stamp-size) auto no-repeat;
+}
+
+.back {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 10%;
+  box-shadow:
+    inset calc(var(--hair) * -3) 0 calc(var(--hair) * 4) calc(var(--hair) * -2)
+      rgba(0, 0, 0, 0.6),
+    inset 0 0 0 var(--hair) rgba(255, 255, 255, 0.06);
+}
+
+.backMark {
+  font-family: var(--font-sans);
+  font-size: calc(var(--page-w) * 0.045);
+  color: var(--booklet-cover-outside-ink);
+}
+
+/* Page-block edges peeking out from under the inside covers. */
+.stackRight {
+  box-shadow: inset 3px 0 6px -3px rgba(20, 40, 70, 0.2);
+}
+
+.stackLeft {
+  box-shadow: inset -3px 0 6px -3px rgba(20, 40, 70, 0.2);
+}
+
+/* ── Content pages ── */
+
+.page {
+  background: var(--booklet-page-bg);
+}
+
+/* Oversized past the page edges; the face clips it so the drawing bleeds. */
+.content {
+  position: absolute;
+  inset: -5%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Marks multiply into the page like real ink and graphite: they darken what
+   is under them and can never cover black line work. */
+.drawSurface {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: multiply;
+}
+
+.stage[data-drawing] .drawSurface {
+  cursor: none;
+}
+
+/* Traced line work sits straight on the paper, like ink on the page. */
+.sketch {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+/* ── Floor shadow — soft, gray, floating well below the book ── */
+
+.shadow {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + var(--page-h) / 2 + var(--group-offset) + var(--shadow-gap));
+  width: calc(var(--page-w) * 1.5);
+  height: var(--shadow-h);
+  translate: -50% 0;
+  /* A wide, multi-stop falloff stands in for filter: blur(), which would
+     re-rasterise every frame while the shadow breathes. */
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.14) 0%,
+    rgba(0, 0, 0, 0.09) 22%,
+    rgba(0, 0, 0, 0.04) 45%,
+    rgba(0, 0, 0, 0.01) 62%,
+    transparent 72%
+  );
+  pointer-events: none;
+  /* Rest pose matches the breathing loop's start. */
+  scale: 0.96;
+  opacity: 0.875;
+  animation: shadowBreathe var(--booklet-float-duration) ease-in-out infinite;
+}
+
+/* Page counter, centred in the floor shadow just under the book. */
+.counter {
+  position: absolute;
+  left: 50%;
+  top: calc(
+    50% + var(--page-h) / 2 + var(--group-offset) + var(--shadow-gap) +
+      var(--shadow-h) / 2
+  );
+  translate: -50% -50%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--atlas-base-text-tertiary);
+  transition: opacity 0.25s ease;
+}
+
+/* Fades out as the reader shrinks back onto the hero frame (whose copy has
+   no counter), rather than shrinking to a speck and vanishing at hand-off. */
+.stage[data-paused] .counter {
+  opacity: 0;
+}
+
+.counterStep {
+  padding: 2px 4px;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.counterStep:hover:not(:disabled) {
+  color: var(--atlas-base-color-gray-12);
+}
+
+.counterStep:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.counterStep:focus-visible {
+  outline: 1px solid var(--atlas-base-text-tertiary);
+  border-radius: 2px;
+}
+
+/* Rest in the neutral pose — no drift, no pointer tilt — while off-screen,
+   hidden behind the reader, or falling back into the hero frame. Both copies
+   meet in this pose, so the hand-off between them is seamless. */
+.stage[data-paused] .float,
+.stage[data-paused] .shadow {
+  animation: none;
+}
+
+.stage[data-paused] .float {
+  transform: translateY(var(--group-offset));
+  transition: transform 0.5s ease;
+}
+
+/* Book rises → shadow tightens and fades; in step with bookFloat. */
+@keyframes shadowBreathe {
+  0%,
+  100% {
+    scale: 0.96;
+    opacity: 0.875;
+  }
+  25% {
+    scale: 0.92;
+    opacity: 0.75;
+  }
+  75% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage {
+    --booklet-turn-duration: 0.01s;
+  }
+
+  .float,
+  .shadow {
+    animation: none;
+  }
+}

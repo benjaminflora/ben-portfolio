@@ -4,16 +4,22 @@
  */
 
 :root {
-  /* ── Color / Gray Scale ── */
+  /* ── Color / Gray Scale — Figma variables, node 290:317 ── */
   --atlas-base-background-background: #ffffff;
-  --atlas-base-color-gray-1: #eeeeee;
-  --atlas-base-color-gray-2: #b3b3b3;
-  --atlas-base-color-gray-6: #3a3a3a;
+  --atlas-base-color-gray-1: #fcfcfc;
+  --atlas-base-color-gray-2: #f3f3f3;
+  --atlas-base-color-gray-6: #484848;
   --atlas-base-color-gray-8: #313131;
-  --atlas-base-color-gray-12: #111111;
+  --atlas-base-color-gray-10: #222222;
+  --atlas-base-color-gray-11: #191919;
+  --atlas-base-color-gray-12: #080808;
 
   /* ── Text ── */
-  --atlas-base-text-tertiary: #7b7b7b;
+  --atlas-base-text-secondary: #313131;
+  /* 5.3:1 on white (was #9f9f9f, 2.6:1 — below WCAG AA's 4.5:1). */
+  --atlas-base-text-tertiary: #6b6b6b;
+  /* Long-form paragraphs: darker than tertiary for easy reading (9.5:1). */
+  --atlas-base-text-body: #454545;
 
   /* ── Tab ── */
   --atlas-tab-foreground-active: #111111;
@@ -22,20 +28,35 @@
   /* ── Component-specific (hardcoded in Figma, not variables) ── */
   --atlas-border-subtle: #f0f0f0;
   --atlas-project-thumbnail-bg: #fafafa;
+  /* Card plate — a touch lighter than gray-2 (#f3f3f3). */
+  --atlas-project-card-bg: #f7f7f7;
 
   /* ── Radius ── */
-  --button-radius: 4px;
+  --button-radius: 30px;
   --project-card-radius: 4px;
+  --project-thumbnail-radius: 2px;
 
   /* ── Typography / Font Families ── */
-  --font-geist: var(--font-geist-sans), "Geist", system-ui, sans-serif;
-  --font-sf-pro: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro",
-    system-ui, sans-serif;
-  --font-diatype: "ABC Diatype", var(--font-geist), system-ui, sans-serif;
-  --font-42dot: "42dot Sans", var(--font-geist), system-ui, sans-serif;
+  /* Body and labels. Headers use --font-title (Timeless Text). */
+  --font-sans: var(--font-geist), "Geist", system-ui, sans-serif;
+  /* All headers — Figma node 374:1776. One weight (479), no extra tracking. */
+  --font-title: var(--font-timeless), "Timeless Text", Georgia, serif;
+  --font-title-weight: 479;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   /* ── Typography / Hero ── */
   --hero-font-size: 36px;
+
+  /* ── Typography / Page (case studies, About, writing) ── */
+  --page-title-font-size: 48px;
+  --page-title-line-height: 1.15;
+  --page-title-letter-spacing: normal;
+  --page-meta-font-size: 14px;
+  --section-title-font-size: 24px;
+  --metric-font-size: 24px;
+  --section-title-letter-spacing: -0.3px;
+  --body-font-size: 17px;
+  --body-line-height: 1.6;
   --hero-letter-spacing: -0.72px;
   --hero-line-height: normal;
 
@@ -44,7 +65,11 @@
   --subtitle-letter-spacing: -0.32px;
   --subtitle-line-height: normal;
   --subtitle-max-width: 442px;
-  --case-study-max-width: 560px;
+  /* Case study / About / writing content column. */
+  --case-study-max-width: 800px;
+  /* One rhythm between every element in those pages. */
+  --case-study-gap: 32px;
+  --portrait-size: 72px;
 
   /* ── Typography / Tab ── */
   --tab-font-size: 12px;
@@ -54,19 +79,50 @@
   --tab-border-width: 2px;
   --tab-gap: 8px;
 
-  /* ── Typography / Button ── */
-  --button-font-size: 12px;
-  --button-padding-x: 12px;
-  --button-padding-y: 8px;
+  /* ── Button — Figma node 310:1359 (Split Button, rounded) ── */
+  --button-height: 30px;
+  --button-font-size: 14px;
+  --button-padding-y: 6px;
+  --button-padding-start: 16px;
+  --button-padding-end: 12px;
+  --button-trigger-padding-start: 8px;
+  --button-icon-size: 20px;
+  --atlas-button-primary-bg: var(--atlas-base-color-gray-12);
+  --atlas-button-primary-bg-hover: var(--atlas-base-color-gray-11);
+  --atlas-button-primary-bg-press: var(--atlas-base-color-gray-10);
+  --atlas-button-primary-fg: var(--atlas-base-color-gray-1);
+  --atlas-button-divider: var(--atlas-base-color-gray-6);
+  --atlas-button-secondary-bg: var(--atlas-base-color-gray-2);
+  --atlas-button-secondary-bg-hover: #e9e9e9;
+  --atlas-button-secondary-bg-press: #dfdfdf;
+  --atlas-button-secondary-fg: var(--atlas-base-color-gray-12);
+  --atlas-button-ghost-fg: var(--atlas-base-text-secondary);
+  /* ── Project status ── */
+  /* Figma node 376:2480; ongoing is the same treatment in amber. */
+  --atlas-status-live: #129600;
+  --atlas-status-live-bg: rgba(30, 255, 0, 0.1);
+  --atlas-status-ongoing: #b26500;
+  --atlas-status-ongoing-bg: rgba(255, 160, 0, 0.12);
+  --status-font-size: 14px;
+
+  /* Soft all-round shadow for case study images — Figma node 357:412. */
+  --atlas-shadow-soft: 0 0 8.4px 0 rgba(0, 0, 0, 0.1);
+  --case-figure-radius: 8px;
+
+  /* Lift for dark floating controls (scroll cue, Contact). */
+  --atlas-shadow-raised: 0 6px 16px -6px rgba(0, 0, 0, 0.35);
 
   /* ── Typography / Breadcrumb ── */
   --breadcrumb-font-size: 14px;
   --breadcrumb-line-height: 16px;
   --breadcrumb-gap: 8px;
   --breadcrumb-icon-size: 16px;
+  --nav-logo-size: 20px;
 
   /* ── Layout / Nav Bar ── */
-  --nav-height: 56px;
+  /* Occupied height of the fixed bar. The 56px row sits below the notch /
+     Dynamic Island so page offsets (shell, reader, scroll) clear it too. */
+  --nav-height: calc(56px + env(safe-area-inset-top, 0px));
   --nav-padding-x: 20px;
   --nav-padding-y: 12px;
   --nav-backdrop-blur: 5px;
@@ -75,17 +131,103 @@
   --header-padding: 100px;
   --header-gap: 40px;
 
-  /* ── Layout / Project Grid ── */
-  --project-grid-padding: 10px;
-  --project-grid-gap: 10px;
+  /* ── Layout / Home Hero — Figma node 290:329 ── */
+  --home-hero-gap: 24px;
+  --home-hero-body-gap: 12px;
+  --home-hero-font-size: 48px;
+  --home-hero-letter-spacing: -1.2px;
+  --home-hero-line-height: 56px;
+  --home-hero-body-line-height: 24.8px;
+  --home-hero-body-letter-spacing: -0.16px;
+  --home-hero-max-width: 1240px;
+  --home-hero-body-max-width: 882px;
+
+  /* ── Booklet — Figma node 332:1254 (Frosted glass magazine) ── */
+  --booklet-stage-height: var(--booklet-frame-size);
+  /* Leaves room in the frame for the tilt and the floor shadow. */
+  --booklet-page-width: calc(var(--booklet-frame-size) * 0.52);
+  --booklet-page-ratio: 1.32;
+  --booklet-turn-duration: 0.7s;
+  --booklet-cover-bg: #ffffff;
+  /* Dark warm gray with a fine sandy grain (matte printed stock). */
+  --booklet-cover-outside-bg: #3a3936;
+  --booklet-cover-outside-ink: rgba(255, 255, 255, 0.5);
+  /* Cover stamp — BF mark (public/brand/bf-mark.svg). */
+  --booklet-stamp-size: 38%;
+  /* The original SVG noise filters, pre-rendered: phones drew the live filters
+     blotchy. The stamp is the BF mark with its worn 42% ink baked in. */
+  --booklet-stamp: url("/textures/stamp.webp");
+  --booklet-cover-sand: url("/textures/cover-sand.png");
+  --booklet-frame-bg: radial-gradient(circle at 50% 45%, #fdfdfc 0%, #f6f6f4 100%);
+  --booklet-reader-bg: radial-gradient(
+    ellipse at 50% 45%,
+    #ffffff 0%,
+    #f3f3f2 45%,
+    #e4e4e3 100%
+  );
+  --booklet-float-duration: 7s;
+  --booklet-frame-radius: 4px;
+  --booklet-frame-size: 283px;
+  --booklet-reader-page-width: 420px;
+  --booklet-fall-duration: 0.8s;
+  --booklet-fall-ease: cubic-bezier(0.65, 0, 0.2, 1);
+  /* Open reader: a rounded card inset from the edges over a dimmed page. */
+  --reader-card-inset: 20px;
+  --reader-card-radius: 16px;
+  --reader-backdrop: rgba(17, 17, 17, 0.28);
+  --booklet-page-bg: #fbfcfe;
+  /* Inside covers: warm endpaper inside a rim of turned-in cover material. */
+  --booklet-endpaper: #f1eee6;
+  --booklet-turn-in: calc(var(--page-w) * 0.04);
+  --booklet-ink: #4f5d72;
+
+  /* ── Sketchbook pens ── */
+  --studio-pen-width: 32px;
+  --studio-pen-gap: 40px;
+  /* How much of each standing pen shows, how far it sinks at rest, and how
+     far the pen in hand rises. */
+  --studio-pen-visible: 200px;
+  --studio-pen-rest: 40px;
+  --studio-pen-lift: 40px;
+
+  /* ── Hero chip — Figma node 304:1285 ── */
+  --atlas-chip-bg: var(--atlas-base-color-gray-2);
+  /* Same corners as the project cards. */
+  --chip-radius: var(--project-card-radius);
+  --chip-padding-x: 12px;
+  --chip-padding-y: 4px;
+
+  /* ── Layout / Project Grid — Figma node 290:346 ── */
+  --project-grid-padding: 50px;
+  --project-grid-gap: 50px;
+  /* Cards stop growing on very wide screens (Figma lays the grid out at 1512). */
+  --project-grid-max-width: 1600px;
+  --project-card-padding: 20px;
+  --project-card-gap: 20px;
+  --project-card-text-gap: 8px;
+  --project-card-thumbnail-height: 445px;
+  --project-card-font-size: 16px;
+  --project-card-title-font-size: 20px;
   --project-card-min-width: 500px;
   --project-card-height: 355px;
   --project-card-info-padding-x: 12px;
   --project-card-info-height: 40px;
   --project-card-hover-duration: 0.25s;
+  --project-card-badge-size: 32px;
+  --project-card-badge-inset: 12px;
 
-  /* ── Layout / Project Nav ── */
-  --project-nav-height: 56px;
+
+  /* ── Index list — Figma node 211:1186 ── */
+  /* Same 12px step as tabs, case study meta and section labels. */
+  --index-font-size: 14px;
+  --index-row-padding-y: 12px;
+  --index-row-gap: 12px;
+  --index-number-width: 20px;
+  /* Sized like the Figma page mockups (600px column), not full width. */
+  --index-max-width: 100%;
+  --index-muted-opacity: 0.4;
+  --index-motion-duration: 0.15s;
+
 
   /* ── Tab / Disabled ── */
   --tab-disabled-opacity: 0.4;
@@ -123,12 +265,11 @@
   --menu-header-font-size: 10px;
   --menu-header-line-height: 12px;
   --menu-disabled-opacity: 0.4;
-  --font-mono: ui-monospace, "SF Mono", "IBM Plex Mono", Menlo, monospace;
 
   /* ── Footer — dark, high-contrast ── */
   --atlas-footer-bg: #111111;           /* gray-12 */
   --atlas-footer-text: #eeeeee;         /* gray-1 */
-  --atlas-footer-text-muted: #7b7b7b;   /* text-tertiary */
+  --atlas-footer-text-muted: #8c8c8c;   /* 5.6:1 on the footer (was #7b7b7b, 4.4:1) */
   --atlas-footer-border: #222222;
   --footer-padding-y: 48px;
   --footer-padding-bottom: 24px;
@@ -137,19 +278,47 @@
 
   /* ── Layout / Nav Sections ── */
   --nav-section-height: 32px;
+  --nav-section-padding-x: 12px;
+  --nav-section-gap: 4px;
 }
 
 @media (max-width: 720px) {
   :root {
     --header-padding: 28px;
     --header-gap: 20px;
+    --home-hero-gap: 16px;
+    --home-hero-body-gap: 10px;
+    --home-hero-font-size: 28px;
+    --home-hero-letter-spacing: -0.6px;
+    --home-hero-line-height: 1.15;
+    --home-hero-body-line-height: 1.55;
+    --booklet-frame-size: 240px;
+    --studio-pen-width: 26px;
+    --studio-pen-gap: 32px;
+    --studio-pen-visible: 160px;
     --hero-font-size: 24px;
+    --page-title-font-size: 32px;
+    --portrait-size: 56px;
+
+    --section-title-font-size: 20px;
+    --body-font-size: 16px;
     --hero-letter-spacing: -0.48px;
     --subtitle-font-size: 15px;
     --subtitle-max-width: 100%;
     --nav-padding-x: 16px;
+    --project-grid-padding: 16px;
+    --project-grid-gap: 16px;
+    --project-card-padding: 12px;
+    --project-card-gap: 12px;
+    --project-card-thumbnail-height: 240px;
+    --project-card-font-size: 15px;
+    --project-card-title-font-size: 18px;
     --nav-padding-y: 10px;
     --breadcrumb-font-size: 13px;
+    --nav-section-padding-x: 8px;
+    --reader-card-inset: 8px;
+    --reader-card-radius: 12px;
+    --nav-section-gap: 0px;
     --footer-padding-y: 40px;
     --footer-gap: 40px;
     --footer-column-gap: 48px;

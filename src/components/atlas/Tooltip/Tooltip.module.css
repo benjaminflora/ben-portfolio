@@ -32,7 +32,7 @@
 }
 
 .text {
-  font-family: var(--font-diatype);
+  font-family: var(--font-sans);
   font-size: var(--tooltip-font-size);
   font-weight: 400;
   line-height: normal;

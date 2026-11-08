@@ -1,34 +1,43 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import FadeIn from "text-fade-in";
 import { useLoadInAnimation } from "./FadeInProvider";
 
 interface FadeInTextProps {
   children: string;
   lines?: boolean;
+  /** Seconds before the first word appears. */
+  delay?: number;
+  /** Seconds between successive words/lines. */
+  stagger?: number;
   className?: string;
 }
 
 export function FadeInText({
   children,
   lines = false,
+  delay = 0.1,
+  stagger = 0.03,
   className,
 }: FadeInTextProps) {
   const shouldAnimate = useLoadInAnimation();
   const rootRef = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
+  // text-fade-in's own effect rewrites --delay on every word on the page to a
+  // hard-coded 1s + 0.05s stagger, so set animation-delay itself, which takes
+  // precedence over the library's var(--delay) whichever effect runs last.
+  useEffect(() => {
     if (!shouldAnimate) {
       return;
     }
 
     const spans = rootRef.current?.querySelectorAll<HTMLElement>(".fade-in span");
     spans?.forEach((span, index) => {
-      span.style.setProperty("--delay", `${1 + index * 0.05}s`);
+      span.style.animationDelay = `${delay + index * stagger}s`;
       span.style.animationFillMode = "both";
     });
-  }, [shouldAnimate, children, lines]);
+  }, [shouldAnimate, children, lines, delay, stagger]);
 
   if (shouldAnimate === false) {
     return <div className={className}>{children}</div>;

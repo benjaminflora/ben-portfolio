@@ -3,16 +3,20 @@
 import Link from "next/link";
 import { GlobeIcon } from "@/components/icons/GlobeIcon";
 import { scrollToTop } from "@/components/SmoothScroll";
+import {
+  EMAIL_HREF,
+  LINKEDIN_HREF,
+  RESUME_FILENAME,
+  RESUME_HREF,
+} from "@/data/contact";
 import styles from "./Footer.module.css";
 
-const NAV_LINKS = [
-  { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
-];
+/* Figma node 290:367 — Footer */
+const NAV_LINKS = [{ label: "Home", href: "/" }];
 
 const CONNECT_LINKS = [
-  { label: "Email", href: "mailto:bmflora@usc.edu", external: false },
-  { label: "LinkedIn", href: "https://linkedin.com/in/bennfl", external: true },
+  { label: "Email", href: EMAIL_HREF, external: false },
+  { label: "LinkedIn", href: LINKEDIN_HREF, external: true },
 ];
 
 export function Footer() {
@@ -24,7 +28,7 @@ export function Footer() {
         <div className={styles.brand}>
           <Link href="/" className={styles.homeLink}>
             <GlobeIcon className={styles.brandIcon} />
-            <span className={styles.brandText}>benjaminFlora.com</span>
+            <span className={styles.brandText}>benjaminflora.com</span>
           </Link>
           <p className={styles.tagline}>
             Product-oriented design systems designer.
@@ -68,8 +72,8 @@ export function Footer() {
               ))}
               <li>
                 <a
-                  href="/resume.pdf"
-                  download="BenjaminFlora_ResumeF26.pdf"
+                  href={RESUME_HREF}
+                  download={RESUME_FILENAME}
                   className={styles.link}
                 >
                   Resume

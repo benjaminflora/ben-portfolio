@@ -13,8 +13,9 @@ import styles from "./ContextualMenu.module.css";
 
 /* Figma: Nebula Design System, node 10090:16768 — Contextual Menu */
 
-// Menu opens 4px below (or above) the interaction site.
+// Pointer menus open 4px from the cursor. Dropdowns clear the control.
 const CURSOR_OFFSET = 4;
+const DROPDOWN_GAP = 16;
 // Gap between a parent item and its sub-menu.
 const SUBMENU_GAP = 4;
 // Keeps a sub-menu's first item level with its parent (padding + border).
@@ -59,7 +60,7 @@ export type ContextualMenuEntry =
   | ContextualMenuSection;
 
 type Anchor =
-  | { kind: "point"; x: number; y: number }
+  | { kind: "point"; x: number; y: number; gap?: number }
   | { kind: "item"; rect: DOMRect };
 
 interface ContextualMenuProps {
@@ -67,6 +68,9 @@ interface ContextualMenuProps {
   children: React.ReactNode;
   /** Pointer interaction that opens the menu. */
   trigger?: "click" | "contextmenu";
+  /** `pointer` opens at the cursor; `below` drops down from the trigger's edge. */
+  placement?: "pointer" | "below";
+  onOpenChange?: (open: boolean) => void;
   className?: string;
 }
 
@@ -74,15 +78,41 @@ export function ContextualMenu({
   items,
   children,
   trigger = "click",
+  placement = "pointer",
+  onOpenChange,
   className,
 }: ContextualMenuProps) {
   const [anchor, setAnchor] = useState<Anchor | null>(null);
   const close = useCallback(() => setAnchor(null), []);
 
-  const open = (event: React.MouseEvent) => {
+  useEffect(() => {
+    onOpenChange?.(anchor !== null);
+  }, [anchor, onOpenChange]);
+
+  const open = (event: React.MouseEvent<HTMLDivElement>) => {
     // Events from the portaled menu still bubble through the React tree.
     if ((event.target as Element).closest("[data-contextual-menu]")) return;
     event.preventDefault();
+    if (anchor) {
+      close();
+      return;
+    }
+    // Keyboard activation (detail 0) has no pointer position to open at.
+    if (placement === "below" || event.detail === 0) {
+      // The wrapper is `display: contents`, so measure the trigger itself.
+      const target = event.currentTarget.firstElementChild ?? event.currentTarget;
+      const rect = target.getBoundingClientRect();
+      // On the right half, anchor the right edge so the overflow flip aligns
+      // the menu's right edge with the trigger's.
+      const x = rect.left > window.innerWidth / 2 ? rect.right : rect.left;
+      setAnchor({
+        kind: "point",
+        x,
+        y: rect.bottom,
+        gap: placement === "below" ? DROPDOWN_GAP : CURSOR_OFFSET,
+      });
+      return;
+    }
     setAnchor({ kind: "point", x: event.clientX, y: event.clientY });
   };
 
@@ -154,13 +184,14 @@ function MenuPanel({ entries, anchor, onDismiss, onBack }: MenuPanelProps) {
     let top: number;
 
     if (anchor.kind === "point") {
+      const gap = anchor.gap ?? CURSOR_OFFSET;
       // Left aligned by default; right aligned when it would overflow.
       left = anchor.x;
       if (left + width > vw - VIEWPORT_MARGIN) left = anchor.x - width;
       // Below the cursor by default; above it when it would overflow.
-      top = anchor.y + CURSOR_OFFSET;
+      top = anchor.y + gap;
       if (top + height > vh - VIEWPORT_MARGIN) {
-        top = anchor.y - CURSOR_OFFSET - height;
+        top = anchor.y - gap - height;
       }
     } else {
       // Sub-menus open to the right, or to the left when there's no room.
@@ -280,7 +311,7 @@ function MenuPanel({ entries, anchor, onDismiss, onBack }: MenuPanelProps) {
     <>
       <div
         ref={panelRef}
-        className={styles.menu}
+        className={[styles.menu, position ? styles.menuIn : null].filter(Boolean).join(" ")}
         role="menu"
         tabIndex={-1}
         data-contextual-menu=""

@@ -7,6 +7,12 @@ import { setLenis } from "./scrollPosition";
 
 export function SmoothScroll() {
   useEffect(() => {
+    // Every load starts at the top; the browser shouldn't restore the old spot.
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
+
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
     }

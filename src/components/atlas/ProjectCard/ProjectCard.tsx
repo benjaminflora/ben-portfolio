@@ -1,9 +1,13 @@
 import Link from "next/link";
+import { ArrowUpRightIcon } from "@/components/icons/ArrowUpRightIcon";
 import styles from "./ProjectCard.module.css";
 
+/* Figma node 321:446 — Project Card / Nebula Design System */
 interface ProjectCardProps {
   title: string;
-  company?: string;
+  description?: string;
+  meta?: string;
+  /** Shown on the right of the title row, e.g. "Design Intern". */
   role?: string;
   href?: string;
   /** When true, `href` opens in a new tab. */
@@ -18,7 +22,8 @@ interface ProjectCardProps {
 
 export function ProjectCard({
   title,
-  company,
+  description,
+  meta,
   role,
   href,
   external = false,
@@ -41,9 +46,16 @@ export function ProjectCard({
             src={imageSrc}
             alt={showMeta ? imageAlt : ""}
             className={styles.thumbnailImage}
+            loading="lazy"
+            decoding="async"
           />
         ) : null}
-        {disabled ? (
+        {external && href ? (
+          // Leaves the site: mark it rather than the "to be released" veil.
+          <span className={styles.externalBadge} aria-hidden="true">
+            <ArrowUpRightIcon className={styles.externalIcon} />
+          </span>
+        ) : disabled ? (
           <div className={styles.overlay}>
             <p className={styles.overlayLabel}>To be Released</p>
           </div>
@@ -51,11 +63,14 @@ export function ProjectCard({
       </div>
       {showMeta ? (
         <div className={styles.info}>
-          <div className={styles.meta}>
+          <div className={styles.titleRow}>
             <p className={styles.title}>{title}</p>
-            {company ? <p className={styles.company}>{company}</p> : null}
+            {role ? <p className={styles.role}>{role}</p> : null}
           </div>
-          {role ? <p className={styles.role}>{role}</p> : null}
+          {description ? (
+            <p className={styles.description}>{description}</p>
+          ) : null}
+          {meta ? <p className={styles.meta}>{meta}</p> : null}
         </div>
       ) : null}
     </>

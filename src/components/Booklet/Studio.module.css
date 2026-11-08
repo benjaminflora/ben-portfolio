@@ -1,0 +1,141 @@
+/* ── Pen tray — pens stand tip-up along the bottom edge ── */
+
+.tray {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  translate: -50% 0;
+  pointer-events: auto;
+}
+
+.trayBar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.trayCaption {
+  min-width: 22ch;
+  text-align: center;
+  color: var(--atlas-base-text-tertiary);
+}
+
+.historyButton {
+  padding: 4px 6px;
+  font-family: inherit;
+  color: var(--atlas-base-text-secondary);
+  transition: color 0.2s ease;
+}
+
+.historyButton:hover:not(:disabled) {
+  color: var(--atlas-base-color-gray-12);
+}
+
+.historyButton:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.historyButton:focus-visible {
+  outline: 1px solid var(--atlas-base-text-tertiary);
+  border-radius: 2px;
+}
+
+.penRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--studio-pen-gap);
+  /* Only the top of each pen shows; the rest runs off the bottom edge. */
+  height: var(--studio-pen-visible);
+}
+
+/* Pens rise into place as the reader opens. */
+@keyframes penRise {
+  from {
+    transform: translateY(calc(var(--studio-pen-visible) + 24px));
+  }
+}
+
+.penSlot {
+  position: relative;
+  width: var(--studio-pen-width);
+  height: 100%;
+  transform: translateY(var(--studio-pen-rest));
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: penRise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  animation-delay: calc(var(--booklet-fall-duration) * 0.6 + var(--i) * 0.06s);
+}
+
+.penSlot:hover {
+  transform: translateY(calc(var(--studio-pen-rest) - 6px));
+}
+
+/* The pen in hand rises above the others. */
+.penSlot[data-held] {
+  transform: translateY(calc(var(--studio-pen-rest) - var(--studio-pen-lift)));
+}
+
+.penModel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.22));
+}
+
+.penSlot:focus-visible {
+  outline: 1px solid var(--atlas-base-text-tertiary);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* ── Nib dot — shows the pen's line width under the pointer ── */
+
+.nibDot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 200;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85);
+  transition: opacity 0.12s ease;
+}
+
+.nibDot[data-visible] {
+  opacity: 0.85;
+}
+
+/* The eraser shows its footprint as a ring. */
+.nibDot[data-eraser] {
+  background: transparent !important;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+}
+
+/* Touch screens draw with a finger; no pointer to mark. */
+@media (hover: none) {
+  .nibDot {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .penSlot {
+    animation: none;
+    transition-duration: 0.01s;
+  }
+}

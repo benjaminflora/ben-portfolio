@@ -1,0 +1,93 @@
+/* Figma node 211:1186 — Index (component set 64:1516; rows are
+   "Project Title" 64:1372). Motion follows the prototype:
+   - list enter → every row mutes to 40% (state=focused); leave → back.
+   - row enter (in a focused list) → that row returns to full (enabled).
+   - row leave → muted again; press → subtle fill (state=press).
+   All 150ms. */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--index-max-width);
+  margin-inline: auto;
+  list-style: none;
+}
+
+/* Each row carries a rule above and below, as in the Figma component. */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--index-row-gap);
+  width: 100%;
+  padding: var(--index-row-padding-y) 0;
+  border-top: 1px solid var(--atlas-border-subtle);
+  border-bottom: 1px solid var(--atlas-border-subtle);
+  font-family: var(--font-sans);
+  font-size: var(--index-font-size);
+  line-height: normal;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  /* Leaving the list: dissolve back to enabled, ease-out. */
+  transition:
+    opacity var(--index-motion-duration) ease-out,
+    background-color var(--index-motion-duration) ease-in-out;
+}
+
+@media (hover: hover) {
+  /* List focused: rows mute; a row leaving the pointer eases back down. */
+  .list:hover .row {
+    opacity: var(--index-muted-opacity);
+    transition-timing-function: ease-in-out, ease-in-out;
+  }
+
+  /* The row under the pointer comes back to full, ease-out. */
+  .list:hover .row:hover {
+    opacity: 1;
+    transition-timing-function: ease-out, ease-in-out;
+  }
+}
+
+/* Unlinked rows aren't clickable, so no pointer or press. */
+div.row {
+  cursor: default;
+}
+
+/* Press — Figma 141:1210: subtle fill behind the row. */
+a.row:active {
+  background-color: var(--atlas-border-subtle);
+}
+
+.lead {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--index-row-gap);
+  min-width: 0;
+}
+
+.number {
+  flex-shrink: 0;
+  width: var(--index-number-width);
+  color: var(--atlas-base-text-tertiary);
+}
+
+.title {
+  min-width: 0;
+  color: var(--atlas-base-color-gray-12);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.source {
+  flex-shrink: 0;
+  color: var(--atlas-base-text-tertiary);
+  white-space: nowrap;
+}
+
+.row:focus-visible {
+  outline: 1px solid var(--atlas-base-text-tertiary);
+  outline-offset: 2px;
+}

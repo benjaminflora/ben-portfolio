@@ -1,0 +1,34 @@
+/* Figma node 376:2480 — Status indicator: tinted pill, square marker, label. */
+.status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: var(--project-card-radius);
+  background: var(--status-bg);
+  font-family: var(--font-sans);
+  font-size: var(--status-font-size);
+  font-weight: 500;
+  line-height: 16px;
+  white-space: nowrap;
+  color: var(--status-fg);
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
+  background: var(--status-fg);
+}
+
+.status[data-status="live"] {
+  --status-fg: var(--atlas-status-live);
+  --status-bg: var(--atlas-status-live-bg);
+}
+
+.status[data-status="ongoing"] {
+  --status-fg: var(--atlas-status-ongoing);
+  --status-bg: var(--atlas-status-ongoing-bg);
+}

@@ -32,14 +32,19 @@
   text-align: left;
 }
 
+/* Figma node 321:446 — gray tile: thumbnail above, copy below. */
 .card {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  gap: var(--project-card-gap);
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
   height: 100%;
+  padding: var(--project-card-padding);
+  background-color: var(--atlas-project-card-bg);
+  border-radius: var(--project-card-radius);
   position: relative;
 }
 
@@ -49,12 +54,13 @@
   height: 100%;
 }
 
+/* Figma node 321:423 */
 .thumbnail {
-  flex: 1 0 0;
-  min-height: 0;
+  flex-shrink: 0;
+  height: var(--project-card-thumbnail-height);
   width: 100%;
-  background-color: var(--atlas-project-thumbnail-bg);
-  border-radius: var(--project-card-radius);
+  background-color: var(--atlas-base-background-background);
+  border-radius: var(--project-thumbnail-radius);
   position: relative;
   overflow: hidden;
 }
@@ -96,7 +102,7 @@
 }
 
 .overlayLabel {
-  font-family: var(--font-geist);
+  font-family: var(--font-sans);
   font-size: var(--tab-font-size);
   font-weight: 400;
   line-height: var(--tab-line-height);
@@ -113,75 +119,86 @@
   background-color: #d8d8d8;
 }
 
-/* Project Info — Figma node 216:321; sibling of thumbnail */
+/* External link marker — top-right of the thumbnail. */
+.externalBadge {
+  position: absolute;
+  top: var(--project-card-badge-inset);
+  right: var(--project-card-badge-inset);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--project-card-badge-size);
+  height: var(--project-card-badge-size);
+  border-radius: 50%;
+  background: var(--atlas-base-background-background);
+  color: var(--atlas-base-color-gray-12);
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.18);
+}
+
+.externalIcon {
+  transition: transform var(--project-card-hover-duration) ease;
+}
+
+.card:hover .externalIcon,
+.card:focus-visible .externalIcon {
+  transform: translate(1px, -1px);
+}
+
+/* Figma node 321:460 — always visible below the thumbnail. */
 .info {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: var(--project-card-text-gap);
   width: 100%;
-  height: 0;
-  overflow: hidden;
-  opacity: 0;
-  flex-shrink: 0;
-  padding: 0 var(--project-card-info-padding-x);
-  transition: height var(--project-card-hover-duration) ease,
-    opacity var(--project-card-hover-duration) ease;
+  font-family: var(--font-sans);
+  font-size: var(--project-card-font-size);
+  line-height: normal;
 }
 
-.card:hover .info,
-.link:hover .info {
-  height: var(--project-card-info-height);
-  opacity: 1;
-}
-
-.title {
-  font-family: var(--font-geist);
-  font-size: var(--tab-font-size);
-  font-weight: 400;
-  line-height: var(--tab-line-height);
-  color: var(--atlas-base-color-gray-12);
-  white-space: nowrap;
-}
-
-.meta {
+/* Project name left, role right. */
+.titleRow {
   display: flex;
-  align-items: center;
-  gap: var(--tab-gap);
-  min-width: 0;
-}
-
-.company {
-  font-family: var(--font-geist);
-  font-size: var(--tab-font-size);
-  font-weight: 400;
-  line-height: var(--tab-line-height);
-  color: var(--atlas-base-text-tertiary);
-  white-space: nowrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .role {
-  font-family: var(--font-geist);
-  font-size: var(--tab-font-size);
+  flex-shrink: 0;
   font-weight: 400;
-  line-height: var(--tab-line-height);
-  color: var(--atlas-base-color-gray-6);
-  white-space: nowrap;
+  color: var(--atlas-base-text-tertiary);
+  text-align: right;
+}
+
+/* Card titles are headers: Timeless, its single weight. */
+.title {
+  font-family: var(--font-title);
+  font-size: var(--project-card-title-font-size);
+  font-weight: var(--font-title-weight);
+  line-height: 1.2;
+  color: var(--atlas-base-color-gray-12);
+}
+
+.description {
+  font-weight: 500;
+  color: var(--atlas-base-text-secondary);
+}
+
+.meta {
+  font-weight: 400;
+  color: var(--atlas-base-text-tertiary);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .thumbnailImage,
-  .info,
   .overlay {
     transition: none;
   }
 
-  .card:hover .thumbnailImage {
+  .card:hover .thumbnailImage,
+  .card:hover .externalIcon {
     transform: none;
-  }
-
-  .info {
-    height: var(--project-card-info-height);
-    opacity: 1;
   }
 
   .disabled .overlay {

@@ -1,4 +1,4 @@
-export type ProjectCategory = "design" | "art" | "writing" | "atlas";
+export type ProjectCategory = "design" | "writing" | "atlas";
 
 export const caseStudySections = [
   { key: "summary", label: "Summary" },
@@ -16,11 +16,22 @@ export type CaseStudyImage = {
   alt: string;
 };
 
-export type CaseStudyBlock = string | CaseStudyImage;
+/** Images shown side by side in one row (e.g. two portrait photos). */
+export type CaseStudyImageRow = { row: CaseStudyImage[] };
+
+export type CaseStudyBlock = string | CaseStudyImage | CaseStudyImageRow;
 
 export type CaseStudyContent = Partial<
   Record<CaseStudySectionKey, CaseStudyBlock[]>
 >;
+
+/** Inactive projects carry no status (and show no indicator). */
+export type ProjectStatus = "live" | "ongoing";
+
+export interface ProjectMetric {
+  value: string;
+  label: string;
+}
 
 export interface Project {
   id: string;
@@ -34,6 +45,17 @@ export interface Project {
   /** Opens in a new tab. Takes precedence over the case study route. */
   externalHref?: string;
   visual?: boolean;
+  /** Project card copy — Figma node 290:346. Falls back to `title`. */
+  card?: {
+    title: string;
+    description: string;
+    meta: string;
+    /** Card-only thumbnail when it differs from `imageSrc`. */
+    imageSrc?: string;
+  };
+  status?: ProjectStatus;
+  /** Headline numbers shown under the case study title. */
+  metrics?: ProjectMetric[];
   caseStudy?: CaseStudyContent;
   caseStudyImages?: CaseStudyImage[];
 }
@@ -41,7 +63,13 @@ export interface Project {
 export function isCaseStudyImage(
   block: CaseStudyBlock,
 ): block is CaseStudyImage {
-  return typeof block !== "string";
+  return typeof block !== "string" && "src" in block;
+}
+
+export function isCaseStudyImageRow(
+  block: CaseStudyBlock,
+): block is CaseStudyImageRow {
+  return typeof block !== "string" && "row" in block;
 }
 
 export function getCaseStudyDescription(content: CaseStudyContent) {
@@ -53,11 +81,12 @@ export const projectCategories: {
   key: ProjectCategory;
   label: string;
   disabled?: boolean;
+  /** Kept in the data and code but not shown in the nav or routed. */
+  hidden?: boolean;
 }[] = [
   { key: "design", label: "Design" },
-  { key: "art", label: "Art" },
-  { key: "writing", label: "Writing", disabled: true },
-  { key: "atlas", label: "Atlas" },
+  { key: "writing", label: "Writing", hidden: true },
+  { key: "atlas", label: "Atlas", hidden: true },
 ];
 
 const sample = (
@@ -78,10 +107,16 @@ export const projectsByCategory: Record<ProjectCategory, Project[]> = {
   design: [
     {
       id: "design-1",
+      card: {
+        title: "Sift Stack",
+        description: "Diagnostics for mission critical machines.",
+        meta: "Nebula Design System • 2026",
+      },
       slug: "nebula-design-system",
       title: "Nebula Design System",
       company: "Sift",
-      role: "Design Systems Intern",
+      role: "Design Intern",
+      status: "ongoing",
       imageSrc: "/projects/nebula.jpg",
       imageAlt: "Nebula in light mode on a workstation monitor and a side panel of telemetry channels",
       disabled: true,
@@ -96,10 +131,24 @@ export const projectsByCategory: Record<ProjectCategory, Project[]> = {
     },
     {
       id: "design-2",
+      card: {
+        title: "Toph",
+        description: "Intelligent record keeping for agricultural compliance.",
+        meta: "USC Lavalab • 2026",
+        imageSrc: "/projects/toph-card.png",
+      },
       slug: "toph",
       title: "Toph",
       company: "Lavalab",
       role: "Founding Designer",
+      status: "live",
+      // Figma node 376:2461.
+      metrics: [
+        { value: "37,000", label: "acres tested" },
+        { value: "40+", label: "customer calls" },
+        { value: "3", label: "design partners" },
+        { value: "10", label: "pitches" },
+      ],
       imageSrc: "/projects/toph.jpg",
       imageAlt: "Toph dashboard on a laptop, showing activity logs, a recording, and a field map",
       caseStudy: {
@@ -131,6 +180,18 @@ export const projectsByCategory: Record<ProjectCategory, Project[]> = {
         ],
         result: [
           "After testing our product across 30,000 acres of farmland, the feedback was overwhelmingly positive. In May, our product also received positive remarks from Jamie Siminoff, the founder of Ring, in USC Lavalab’s “Demo Day.”",
+          {
+            row: [
+              {
+                src: "/projects/toph-demo-day-booth.jpg",
+                alt: "The Toph booth at USC Lavalab Demo Day: Toph logo backdrop, balloons, branded table, and the product on a monitor",
+              },
+              {
+                src: "/projects/toph-team.jpg",
+                alt: "The four-person Toph team smiling together at an arcade during a team outing",
+              },
+            ],
+          },
         ],
       },
       caseStudyImages: [
@@ -142,16 +203,31 @@ export const projectsByCategory: Record<ProjectCategory, Project[]> = {
     },
     {
       id: "design-3",
+      card: {
+        title: "July",
+        description: "The AI platform powering top creator agencies.",
+        meta: "Solstace Design System • 2025",
+        imageSrc: "/projects/july-card.png",
+      },
       slug: "bulk-actions",
       title: "Bulk Actions",
       company: "July",
-      role: "Product Design Intern",
+      role: "Design Intern",
+      metrics: [
+        { value: "700", label: "playing cards designed" },
+        { value: "20%", label: "revenue increase" },
+        { value: "20+", label: "customer calls" },
+      ],
       imageSrc: "/projects/bulk-actions.png",
       imageAlt:
         "July Deals on an iMac, with five deals selected and a bulk actions menu open",
       caseStudy: {
         summary: [
           "July is a software product that helps talent agencies manage creators and brand deals. I spent 7 months working with them as a design intern to help bring extra UI and UX polish to their platform. While working there, I designed a growth campaign that booked calls with 2 large enterprise leads (20% increase in revenue), a cross-cutting bulk actions feature, and a few pages of the platform. This case study will dive into bulk actions.",
+          {
+            src: "/projects/july-office.jpg",
+            alt: "The July office: desks with monitors under pendant bulbs, and the neon July sign on a green wall",
+          },
         ],
         problem: [
           "The founder of one of July’s customers reached out and described a unique issue he was facing. His company updated deal invoices bi-monthly, meaning when it was time, he would spend hours selecting deals one by one and updating invoice statuses, amounts, and dates. July’s product is largely a database—any action done in bulk would take painstaking effort by our users, which was more frequent than we initially believed.",
@@ -187,6 +263,11 @@ export const projectsByCategory: Record<ProjectCategory, Project[]> = {
     },
     {
       id: "design-4",
+      card: {
+        title: "AfterQuery",
+        description: "We teach machines how experts think.",
+        meta: "Branding/Marketing • 2025–26",
+      },
       slug: "billboards",
       title: "Billboards",
       company: "AfterQuery",
@@ -218,52 +299,6 @@ export const projectsByCategory: Record<ProjectCategory, Project[]> = {
           alt: "AfterQuery Experts in Everything billboard with paper planes, photographed in daylight with two people standing in front",
         },
       ],
-    },
-  ],
-  art: [
-    {
-      id: "art-1",
-      slug: "sketchbook",
-      title: "Sketchbook",
-      imageSrc: "/projects/art/sketchbook.png",
-      imageAlt:
-        "Ink doodles in a lined sketchbook, including a ghost, guitar, skull, and jellyfish",
-      visual: true,
-    },
-    {
-      id: "art-2",
-      slug: "house-study",
-      title: "House Study",
-      imageSrc: "/projects/art/house-study.png",
-      imageAlt: "Pencil drawing of a cubic house in a wooded landscape",
-      visual: true,
-    },
-    {
-      id: "art-3",
-      slug: "sun-studies",
-      title: "Sun Studies",
-      imageSrc: "/projects/art/sun-studies.png",
-      imageAlt:
-        "Pencil studies of a smiling sun, skulls, a bonsai, and other creatures",
-      visual: true,
-    },
-    {
-      id: "art-4",
-      slug: "ink-studies",
-      title: "Ink Studies",
-      imageSrc: "/projects/art/ink-studies.png",
-      imageAlt:
-        "Ink character sketches including a squid, a figure in a cap, and a scribbled NAH mark",
-      visual: true,
-    },
-    {
-      id: "art-5",
-      slug: "lucky",
-      title: "Lucky",
-      imageSrc: "/projects/art/lucky.png",
-      imageAlt:
-        "Dense pencil illustration of faces, a grim reaper, and the word lucky",
-      visual: true,
     },
   ],
   writing: [],

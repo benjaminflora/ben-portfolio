@@ -317,7 +317,7 @@ export function HeroTexture() {
         const fade = fadeAt(labelX, labelY);
         if (fade >= 0.08) {
           ctx.save();
-          ctx.font = "12px var(--font-geist), Geist, system-ui, sans-serif";
+          ctx.font = `12px ${getComputedStyle(canvas).fontFamily}`;
           ctx.fillStyle = `rgba(214, 122, 86, ${0.75 * fade})`;
           ctx.textBaseline = "middle";
           ctx.textAlign = "left";

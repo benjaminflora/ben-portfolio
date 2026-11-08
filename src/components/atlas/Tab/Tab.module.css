@@ -11,7 +11,7 @@
 }
 
 .label {
-  font-family: var(--font-sf-pro);
+  font-family: var(--font-sans);
   font-size: var(--tab-font-size);
   font-weight: 400;
   line-height: var(--tab-line-height);

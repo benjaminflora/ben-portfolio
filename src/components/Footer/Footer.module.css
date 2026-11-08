@@ -43,7 +43,7 @@
 }
 
 .brandText {
-  font-family: var(--font-42dot);
+  font-family: var(--font-sans);
   font-size: var(--breadcrumb-font-size);
   line-height: var(--breadcrumb-line-height);
   text-transform: lowercase;
@@ -51,7 +51,7 @@
 }
 
 .tagline {
-  font-family: var(--font-geist);
+  font-family: var(--font-sans);
   font-size: var(--tab-font-size);
   line-height: var(--tab-line-height);
   color: var(--atlas-footer-text-muted);
@@ -70,7 +70,7 @@
 }
 
 .columnLabel {
-  font-family: var(--font-geist);
+  font-family: var(--font-sans);
   font-size: var(--tab-font-size);
   line-height: var(--tab-line-height);
   color: var(--atlas-footer-text-muted);
@@ -93,7 +93,7 @@
   padding: 0;
   border: 0;
   background: none;
-  font-family: var(--font-geist);
+  font-family: var(--font-sans);
   font-size: var(--tab-font-size);
   line-height: var(--tab-line-height);
   color: var(--atlas-footer-text);
@@ -130,7 +130,7 @@
 }
 
 .meta {
-  font-family: var(--font-geist);
+  font-family: var(--font-sans);
   font-size: var(--tab-font-size);
   line-height: var(--tab-line-height);
   color: var(--atlas-footer-text-muted);

@@ -18,7 +18,7 @@
 }
 
 .hint {
-  font-family: var(--font-geist);
+  font-family: var(--font-sans);
   font-size: var(--tab-font-size);
   line-height: var(--tab-line-height);
   color: var(--atlas-base-text-tertiary);
@@ -35,7 +35,7 @@
 
 .title,
 .source {
-  font-family: var(--font-geist);
+  font-family: var(--font-sans);
   font-size: var(--tab-font-size);
   font-weight: 400;
   line-height: var(--tab-line-height);

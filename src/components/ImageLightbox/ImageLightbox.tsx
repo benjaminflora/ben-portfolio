@@ -49,7 +49,9 @@ export function ImageLightbox({ src, alt, onClose }: ImageLightboxProps) {
         onClick={(event) => event.stopPropagation()}
       >
         <div className={styles.close}>
-          <Button onClick={onClose}>Close</Button>
+          <Button variant="secondary" onClick={onClose}>
+            Close
+          </Button>
         </div>
         <img src={src} alt={alt} className={styles.image} />
       </div>

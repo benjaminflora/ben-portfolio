@@ -13,6 +13,12 @@ body {
   min-height: 100%;
 }
 
+/* Always show the scrollbar track, so moving between short and long pages
+   doesn't change the page width and shift everything sideways. */
+html {
+  overflow-y: scroll;
+}
+
 body {
   background-color: var(--atlas-base-background-background);
   color: var(--atlas-base-color-gray-12);

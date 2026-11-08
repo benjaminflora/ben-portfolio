@@ -1,18 +1,23 @@
+/* Fixed to the window so it stays put over the page and the sketchbook reader. */
 .navBar {
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 3;
+  left: 0;
+  right: 0;
+  z-index: 101;
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   height: var(--nav-height);
   padding: var(--nav-padding-y) var(--nav-padding-x);
+  /* Grow with the notch instead of padding inside the 56px row, which would clip it. */
+  padding-top: calc(var(--nav-padding-y) + env(safe-area-inset-top, 0px));
   padding-left: max(var(--nav-padding-x), env(safe-area-inset-left));
-  padding-right: max(var(--nav-padding-x), env(safe-area-inset-right));
+  padding-right: calc(
+    max(var(--nav-padding-x), env(safe-area-inset-right)) + var(--scroll-lock-gap, 0px)
+  );
   background-color: var(--atlas-base-background-background);
-  backdrop-filter: blur(var(--nav-backdrop-blur));
-  -webkit-backdrop-filter: blur(var(--nav-backdrop-blur));
   border-top: 1px solid var(--atlas-border-subtle);
   border-bottom: 1px solid var(--atlas-border-subtle);
   flex-shrink: 0;
@@ -32,25 +37,51 @@
   min-width: 0;
 }
 
-.breadcrumbIcon {
+.brandLogo {
   flex-shrink: 0;
-  width: var(--breadcrumb-icon-size);
-  height: var(--breadcrumb-icon-size);
-  color: var(--atlas-base-text-tertiary);
+  width: var(--nav-logo-size);
+  height: var(--nav-logo-size);
+  border-radius: var(--project-card-radius);
 }
 
 .homeLink {
   display: flex;
   align-items: center;
-  gap: var(--breadcrumb-gap);
+  flex-shrink: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.domainLink {
+  display: flex;
+  align-items: center;
   min-width: 0;
   flex-shrink: 0;
   color: inherit;
   text-decoration: none;
 }
 
+/* Back / forward sit between the logo and the domain. Disabled stays visible. */
+.history {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.history button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+}
+
+.history button svg {
+  width: 16px;
+  height: 16px;
+}
+
 .breadcrumbText {
-  font-family: var(--font-42dot);
+  font-family: var(--font-sans);
   font-size: var(--breadcrumb-font-size);
   font-weight: 400;
   line-height: var(--breadcrumb-line-height);
@@ -61,7 +92,7 @@
 }
 
 .breadcrumbDomain {
-  color: var(--atlas-base-text-tertiary);
+  color: var(--atlas-base-text-secondary);
   text-decoration: none;
 }
 
@@ -69,13 +100,41 @@
   color: var(--atlas-base-color-gray-12);
 }
 
+/* Parent crumb while the journal is open — returns to the page. */
+.breadcrumbBack {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--atlas-base-text-secondary);
+  text-align: start;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.breadcrumbBack:hover {
+  color: var(--atlas-base-color-gray-12);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
 .breadcrumbCurrent {
+  min-width: 0;
+  color: var(--atlas-base-color-gray-11);
+  font-weight: 500;
+  text-align: start;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.actionsFade {
+/* Tabs sit dead centre: the crumbs and actions share the space either side. */
+.tabsFade {
   flex: 0 0 auto;
+}
+
+.actionsFade {
+  flex: 1 0 0;
   min-width: 0;
 }
 
@@ -83,29 +142,36 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 2px;
   min-width: 0;
   height: 100%;
 }
 
-.resumeFull {
-  display: inline;
+/* Square ghost icons — same 30px control height as the nav buttons. */
+.actions a {
+  width: 30px;
+  height: 30px;
+  padding: 0;
 }
 
-.resumeShort {
-  display: none;
+.actions a svg {
+  width: 16px;
+  height: 16px;
 }
 
 @media (max-width: 720px) {
-  .breadcrumbDomain,
-  .breadcrumbSep {
+  /* Phones: no breadcrumb — Home / About carry navigation and sit at the
+     start of the bar, off the camera. The fade wrapper also sets display,
+     so this has to outrank it or the crumb stays and covers the tabs.
+     720px is where "benjaminflora.com / home" just fits beside the tabs;
+     below that the domain runs under Home. Narrower tablets (768) still
+     clear, and a long page name ellipsizes instead of overlapping. */
+  .navBar .breadcrumbFade {
     display: none;
   }
 
-  .resumeFull {
-    display: none;
-  }
-
-  .resumeShort {
-    display: inline;
+  .tabsFade {
+    flex: 1 0 0;
+    min-width: 0;
   }
 }

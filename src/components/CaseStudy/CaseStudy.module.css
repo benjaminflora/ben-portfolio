@@ -9,21 +9,50 @@
 
 .header {
   display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--case-study-gap);
+  width: 100%;
+  max-width: var(--case-study-max-width);
+}
+
+/* About: portrait to the left of the meta + name. */
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-width: 0;
+}
+
+.portraitFade {
+  flex-shrink: 0;
+}
+
+.portrait {
+  flex-shrink: 0;
+  width: var(--portrait-size);
+  height: var(--portrait-size);
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px var(--atlas-border-subtle);
+}
+
+.headerText {
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 16px;
-  width: 100%;
-  max-width: var(--case-study-max-width);
+  min-width: 0;
 }
 
 .meta {
   display: flex;
   align-items: center;
-  gap: var(--tab-gap);
-  font-family: var(--font-geist);
-  font-size: var(--tab-font-size);
+  gap: 12px;
+  font-family: var(--font-sans);
+  font-size: var(--page-meta-font-size);
   font-weight: 400;
-  line-height: var(--tab-line-height);
+  line-height: 1.4;
   color: var(--atlas-base-text-tertiary);
 }
 
@@ -31,19 +60,21 @@
   color: var(--atlas-base-color-gray-2);
 }
 
+/* Same face and scale as the home heading. */
 .title {
-  font-family: var(--font-geist);
-  font-size: var(--hero-font-size);
-  font-weight: 400;
-  line-height: var(--hero-line-height);
-  letter-spacing: var(--hero-letter-spacing);
+  font-family: var(--font-title);
+  font-size: var(--page-title-font-size);
+  font-weight: var(--font-title-weight);
+  line-height: var(--page-title-line-height);
+  letter-spacing: var(--page-title-letter-spacing);
   color: var(--atlas-base-color-gray-12);
+  text-wrap: balance;
 }
 
 .hero {
   width: 100%;
   max-width: var(--case-study-max-width);
-  margin: var(--header-gap) 0 0;
+  margin: var(--case-study-gap) 0 0;
 }
 
 .hero :global([data-fade-item]) {
@@ -56,17 +87,23 @@
   flex-direction: column;
   width: 100%;
   max-width: var(--case-study-max-width);
-  margin-top: var(--header-gap);
+  margin-top: var(--case-study-gap);
 }
 
 .section {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 16px;
+  gap: var(--case-study-gap);
   width: 100%;
-  padding: 32px 0;
+  padding: var(--case-study-gap) 0;
   border-top: 1px solid var(--atlas-border-subtle);
+}
+
+/* Untitled lead section that runs straight on from the header (About). */
+.sectionIntro {
+  padding-top: 0;
+  border-top: none;
 }
 
 .section:last-child {
@@ -76,7 +113,7 @@
 .figure {
   width: 100%;
   margin: 0;
-  padding: 32px 0 0;
+  padding: var(--case-study-gap) 0 0;
   border-top: 1px solid var(--atlas-border-subtle);
 }
 
@@ -85,11 +122,48 @@
   width: 100%;
 }
 
+/* A row of images side by side, equal columns, same rhythm as the page. */
+.figureRow {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--case-study-gap);
+  width: 100%;
+}
+
+@media (max-width: 720px) {
+  .figureRow {
+    gap: 12px;
+  }
+}
+
+/* Figures open in the lightbox. */
+.figureButton {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border-radius: var(--case-figure-radius);
+  cursor: zoom-in;
+}
+
+.figureButton:focus-visible {
+  outline: 1px solid var(--atlas-base-text-tertiary);
+  outline-offset: 4px;
+}
+
+/* Figma node 357:412 — 1px subtle border, 8px corners, soft shadow. */
 .figureImage {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: var(--project-card-radius);
+  border: 1px solid var(--atlas-border-subtle);
+  border-radius: var(--case-figure-radius);
+  box-shadow: var(--atlas-shadow-soft);
+}
+
+/* The preview (first) image sits flat; only images inside sections lift. */
+.hero .figureImage {
+  box-shadow: none;
 }
 
 .sectionFigure {
@@ -102,26 +176,80 @@
   width: 100%;
 }
 
+/* Section headings — a header, so Timeless. */
 .sectionLabel {
-  font-family: var(--font-geist);
-  font-size: var(--tab-font-size);
-  font-weight: 400;
-  line-height: var(--tab-line-height);
+  font-family: var(--font-title);
+  font-size: var(--section-title-font-size);
+  font-weight: var(--font-title-weight);
+  line-height: 1.3;
+  letter-spacing: var(--section-title-letter-spacing);
   color: var(--atlas-base-color-gray-12);
 }
 
 .sectionBody {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--case-study-gap);
 }
 
 .paragraph {
-  font-family: var(--font-geist);
-  font-size: var(--subtitle-font-size);
+  font-family: var(--font-sans);
+  font-size: var(--body-font-size);
   font-weight: 400;
-  line-height: 1.45;
+  line-height: var(--body-line-height);
   letter-spacing: var(--subtitle-letter-spacing);
+  color: var(--atlas-base-text-body);
+}
+
+/* Figma node 376:2461 — a strip of equal cells with 1px dividers (the grid
+   gap shows the border colour behind white cells); wraps on phones. */
+.metricsFade,
+.metricsFade :global([data-fade-item]) {
+  display: block;
+  width: 100%;
+  max-width: var(--case-study-max-width);
+}
+
+.metricsFade {
+  margin-top: var(--case-study-gap);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--atlas-border-subtle);
+  border-radius: var(--project-card-radius);
+  background: var(--atlas-border-subtle);
+}
+
+.metric {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 88px;
+  padding: 10px;
+  background: var(--atlas-base-background-background);
+  text-align: center;
+}
+
+.metricValue {
+  font-family: var(--font-title);
+  font-size: var(--metric-font-size);
+  font-weight: var(--font-title-weight);
+  line-height: 16px;
+  color: var(--atlas-base-color-gray-12);
+}
+
+.metricLabel {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 16px;
   color: var(--atlas-base-text-tertiary);
 }
 

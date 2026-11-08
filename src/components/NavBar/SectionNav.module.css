@@ -1,0 +1,63 @@
+/* Section links over a liquid highlight — see SectionNav.tsx. */
+
+.nav {
+  /* Ghost buttons with even padding (no trailing icon to balance). */
+  --button-padding-start: var(--nav-section-padding-x);
+  --button-padding-end: var(--nav-section-padding-x);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--nav-section-gap);
+}
+
+.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* Blob layer, bled past the nav (BLEED in SectionNav.tsx) so the blur that
+   rounds the goo isn't clipped. */
+.liquid {
+  position: absolute;
+  inset: -12px;
+  pointer-events: none;
+}
+
+/* Slightly oversized: the goo threshold eats a couple of pixels of edge. */
+.blob {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  margin: 0 -2px;
+  border-radius: 999px;
+  background: var(--atlas-button-secondary-bg);
+  opacity: 0;
+  transform: scale(0.7);
+}
+
+.blob[data-visible] {
+  opacity: 1;
+  transform: none;
+}
+
+.item {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+}
+
+/* The liquid layer is the fill; the buttons themselves stay clear. */
+.item .button,
+.item .button:hover,
+.item .button:active,
+.item .button[aria-current="page"] {
+  background-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob {
+    transition: none !important;
+  }
+}

@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  font-family: var(--font-geist);
+  font-family: var(--font-sans);
 }
 
 .shell {
@@ -11,6 +11,40 @@
   align-items: flex-start;
   isolation: isolate;
   width: 100%;
+  /* The page zooms past the viewport edges while the reader is open (see
+     .page). Clip it here: on phones, overflow-x: hidden on <html> still lets
+     the scaled page widen the layout viewport, which resizes the fixed reader
+     mid-animation and throws off its clip and hand-off. `clip` (unlike
+     `hidden`) makes no scroll container, so sticky children keep working. */
+  overflow-x: clip;
   min-height: 100vh;
+  /* Room for the fixed nav. */
+  padding-top: var(--nav-height);
   background-color: var(--atlas-base-background-background);
+}
+
+/* Everything below the nav. The nav stays put while this zooms toward the
+   journal as the reader opens. */
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  flex: 1;
+  transform-origin: var(--booklet-zoom-origin, 50% 50%);
+  transition: transform var(--booklet-fall-duration) var(--booklet-fall-ease);
+}
+
+:global(html[data-booklet-zoom]) .page {
+  transform: scale(1.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page {
+    transition: none;
+  }
+
+  :global(html[data-booklet-zoom]) .page {
+    transform: none;
+  }
 }

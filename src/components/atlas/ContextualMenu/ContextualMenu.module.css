@@ -2,7 +2,7 @@
   display: contents;
 }
 
-/* ── Menu — Dropdown / Contextual-Menu Variants ── */
+/* Quiet page surface: white, hairline, the same soft lift as case figures. */
 .menu {
   position: fixed;
   z-index: 999;
@@ -10,14 +10,29 @@
   flex-direction: column;
   box-sizing: border-box;
   width: max-content;
-  min-width: var(--menu-min-width);
-  padding: var(--menu-padding);
+  padding: 4px;
   overflow: clip;
-  background-color: var(--atlas-menu-bg);
-  border: 1px solid var(--atlas-menu-border);
-  border-radius: var(--menu-radius);
-  box-shadow: var(--atlas-menu-shadow);
+  background-color: var(--atlas-base-background-background);
+  border: 1px solid var(--atlas-border-subtle);
+  border-radius: 16px;
+  box-shadow: var(--atlas-shadow-soft);
   outline: none;
+}
+
+.menuIn {
+  animation: menuDrop 0.2s ease;
+}
+
+@keyframes menuDrop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .row {
@@ -29,54 +44,65 @@
   flex: 1;
 }
 
-/* ── Item — Dropdown Menu Item ── */
+/* Rows follow the nav ghost buttons: 14px Geist, pill hover. */
 .item {
   display: flex;
   flex: 1;
   align-items: center;
-  gap: 2px;
+  gap: 8px;
   box-sizing: border-box;
-  min-height: var(--menu-item-height);
-  padding: var(--menu-item-padding-y) var(--menu-item-padding-x);
+  min-height: var(--button-height);
+  padding: 6px 12px;
   margin: 0;
   border: 0;
-  border-radius: var(--menu-item-radius);
+  border-radius: var(--button-radius);
   background: transparent;
-  color: var(--atlas-menu-item-fg);
-  font-family: var(--font-geist);
-  font-size: var(--menu-font-size);
-  line-height: var(--menu-line-height);
+  color: var(--atlas-button-ghost-fg);
+  font-family: var(--font-sans);
+  font-size: var(--button-font-size);
+  font-weight: 400;
+  line-height: 16px;
   text-align: left;
-  cursor: default;
+  white-space: nowrap;
+  cursor: pointer;
   outline: none;
+  user-select: none;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
+.item:hover,
 .item:focus,
 .item.expanded {
-  background-color: var(--atlas-menu-item-bg-hover);
+  background-color: var(--atlas-button-secondary-bg);
+  color: var(--atlas-button-secondary-fg);
 }
 
 .item:active {
-  background-color: var(--atlas-menu-item-bg-press);
+  background-color: var(--atlas-button-secondary-bg-hover);
+  color: var(--atlas-button-secondary-fg);
 }
 
-.item[aria-disabled="true"] {
-  opacity: var(--menu-disabled-opacity);
+.item[aria-disabled="true"],
+.item[aria-disabled="true"]:hover,
+.item[aria-disabled="true"]:focus,
+.item[aria-disabled="true"]:active {
+  opacity: var(--tab-disabled-opacity);
   background-color: transparent;
+  color: var(--atlas-button-ghost-fg);
+  cursor: default;
 }
 
 .destructive {
   color: var(--atlas-menu-destructive-fg);
 }
 
-.destructive:focus {
-  background-color: var(--atlas-menu-destructive-bg-hover);
-  color: var(--atlas-menu-destructive-fg-active);
-}
-
+.destructive:hover,
+.destructive:focus,
 .destructive:active {
-  background-color: var(--atlas-menu-destructive-bg-press);
-  color: var(--atlas-menu-destructive-fg-active);
+  background-color: color-mix(in srgb, var(--atlas-menu-destructive-fg) 8%, white);
+  color: var(--atlas-menu-destructive-fg);
 }
 
 .leading {
@@ -106,22 +132,22 @@
 .value {
   flex-shrink: 0;
   padding-left: 16px;
-  color: var(--atlas-menu-secondary-fg);
+  color: var(--atlas-base-text-tertiary);
   white-space: nowrap;
 }
 
 .trailing {
   flex-shrink: 0;
   margin-left: 4px;
-  color: var(--atlas-menu-secondary-fg);
+  color: var(--atlas-base-text-tertiary);
 }
 
+.destructive:hover .trailing,
 .destructive:focus .trailing,
 .destructive:active .trailing {
   color: inherit;
 }
 
-/* ── Hotkey ── */
 .hotkey {
   display: flex;
   flex-shrink: 0;
@@ -136,39 +162,46 @@
   box-sizing: border-box;
   width: 16px;
   height: 16px;
-  border: 1px solid var(--atlas-menu-border);
-  border-radius: var(--menu-item-radius);
+  border: 1px solid var(--atlas-border-subtle);
+  border-radius: var(--project-card-radius);
 }
 
 .keyLetter {
-  font-family: var(--font-mono);
-  font-size: var(--menu-header-font-size);
-  line-height: var(--menu-header-line-height);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  line-height: 12px;
   letter-spacing: 0.3px;
   text-transform: uppercase;
-  color: var(--atlas-menu-secondary-fg);
+  color: var(--atlas-base-text-tertiary);
 }
 
-/* ── Dropdown / Option Group Header ── */
 .section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 8px;
+  gap: 8px;
+  padding: 8px 12px 4px;
 }
 
 .divider {
   height: 1px;
-  background-color: var(--atlas-menu-border);
+  background-color: var(--atlas-border-subtle);
 }
 
 .header {
-  font-family: var(--font-mono);
-  font-size: var(--menu-header-font-size);
-  line-height: var(--menu-header-line-height);
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
   white-space: nowrap;
-  color: var(--atlas-menu-secondary-fg);
-  text-box: trim-both cap alphabetic;
+  color: var(--atlas-base-text-tertiary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    transition: none;
+  }
+
+  .menuIn {
+    animation: none;
+  }
 }

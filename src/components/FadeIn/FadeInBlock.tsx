@@ -12,7 +12,7 @@ interface FadeInBlockProps {
 export function FadeInBlock({
   children,
   className,
-  delay = "1s",
+  delay = "0.6s",
 }: FadeInBlockProps) {
   const shouldAnimate = useLoadInAnimation();
   const classes = [styles.wrap, className].filter(Boolean).join(" ");

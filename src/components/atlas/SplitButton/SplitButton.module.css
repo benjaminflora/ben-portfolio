@@ -1,0 +1,23 @@
+/* Figma node 310:1359 — segments sit flush; the trigger carries the divider. */
+.splitButton {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: var(--button-radius);
+  box-shadow: var(--atlas-shadow-raised);
+}
+
+/* Turns with the menu: down when closed, up when open. */
+.trigger svg {
+  transition: transform 0.2s ease;
+}
+
+.trigger[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trigger svg {
+    transition: none;
+  }
+}

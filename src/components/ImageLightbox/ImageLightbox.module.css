@@ -1,12 +1,32 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  z-index: 20;
+  /* Above the fixed nav (101) and the sketchbook reader. */
+  z-index: 200;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
   background-color: rgba(17, 17, 17, 0.5);
+  cursor: zoom-out;
+  animation: lightboxFade 0.2s ease-out both;
+}
+
+.dialog {
+  animation: lightboxRise 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes lightboxFade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes lightboxRise {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
 }
 
 .dialog {
@@ -26,6 +46,7 @@
 
 .image {
   display: block;
+  cursor: default;
   width: auto;
   height: auto;
   max-width: min(1100px, calc(100vw - 48px));
@@ -36,7 +57,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .backdrop {
-    transition: none;
+  .backdrop,
+  .dialog {
+    animation: none;
   }
 }
