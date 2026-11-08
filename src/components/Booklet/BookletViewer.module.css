@@ -147,10 +147,19 @@
   transform: rotate(180deg);
 }
 
-.zoomReset {
+/* Top-right of the card: send-to-Ben and, while zoomed, reset zoom. */
+.topRight {
   position: absolute;
-  top: calc(var(--reader-card-inset) + 12px);
-  right: calc(var(--reader-card-inset) + 12px);
+  top: calc(var(--reader-card-inset) + 16px);
+  right: calc(var(--reader-card-inset) + 16px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.zoomReset {
   padding: 6px 10px;
   border-radius: var(--chip-radius);
   background: var(--atlas-button-secondary-bg);

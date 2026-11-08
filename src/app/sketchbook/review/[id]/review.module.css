@@ -1,0 +1,59 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  padding: 48px 20px 80px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.title {
+  font-family: var(--font-title);
+  font-size: 32px;
+  font-weight: var(--font-title-weight);
+  color: var(--atlas-base-color-gray-12);
+}
+
+.meta {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--atlas-base-text-tertiary);
+}
+
+/* One sketchbook page, same proportions and paper as in the book. */
+.sheet {
+  position: relative;
+  width: min(420px, 100%);
+  aspect-ratio: 1 / var(--booklet-page-ratio);
+  background: var(--booklet-page-bg);
+  border-radius: 3px;
+  box-shadow:
+    0 0 0 1px var(--atlas-border-subtle),
+    var(--atlas-shadow-soft);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--atlas-base-text-secondary);
+}
+
+.error {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: #c3172a;
+}

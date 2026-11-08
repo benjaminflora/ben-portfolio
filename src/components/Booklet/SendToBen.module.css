@@ -1,0 +1,73 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--atlas-base-background-background);
+  box-shadow: var(--atlas-shadow-soft);
+  font-family: var(--font-sans);
+}
+
+.label {
+  font-size: 12px;
+  color: var(--atlas-base-text-secondary);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.input {
+  width: 180px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--atlas-border-subtle);
+  border-radius: 8px;
+  background: var(--atlas-base-background-background);
+  font: inherit;
+  font-size: 14px;
+  color: var(--atlas-base-color-gray-12);
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--atlas-base-text-tertiary);
+}
+
+.hint,
+.error,
+.sent {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--atlas-base-text-tertiary);
+}
+
+.error {
+  color: #c3172a;
+}
+
+.sent {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--atlas-base-text-secondary);
+}
+
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+@media (max-width: 720px) {
+  .input {
+    width: 130px;
+    font-size: 16px; /* no iOS zoom-on-focus */
+  }
+}

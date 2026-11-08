@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useReducer,
   useRef,
   useState,
@@ -15,7 +16,11 @@ import {
   type Ref,
 } from "react";
 import { sketches, type Sketch } from "@/data/sketches";
+import type { GuestDrawing } from "@/lib/guestbook";
+import { GuestReplay } from "./GuestReplay";
+import { useGuestDrawings } from "./guestState";
 import { PEN_BY_ID, type PenId } from "./pens";
+import { paintSegment } from "./paint";
 import { isGestureActive, onGestureStart } from "./gestureState";
 import {
   addStroke,
@@ -70,39 +75,6 @@ const TILT_EASE = 0.08;
 
 /** Pen in hand for the reader's pages; undefined in the static preview. */
 const DrawingContext = createContext<PenId | null | undefined>(undefined);
-
-/** Stable per-segment noise so graphite repaints with the same grain. */
-function grain(i: number) {
-  const x = Math.sin(i * 12.9898) * 43758.5453;
-  return x - Math.floor(x);
-}
-
-/** Draws the segment ending at point `i` (or a dot for a single point). */
-function paintSegment(ctx: CanvasRenderingContext2D, stroke: Stroke, i: number, size: number) {
-  const pen = PEN_BY_ID[stroke.pen];
-  const p = stroke.points;
-  const [x1, y1, w1] = [p[i * 3], p[i * 3 + 1], p[i * 3 + 2]];
-  ctx.globalCompositeOperation = pen.kind === "eraser" ? "destination-out" : "source-over";
-  ctx.globalAlpha = pen.kind === "graphite" ? pen.alpha * (0.7 + 0.3 * grain(i)) : pen.alpha;
-  ctx.strokeStyle = pen.ink;
-  ctx.fillStyle = pen.ink;
-  // Water-based dye wicks into the paper a little past the nib.
-  const width = (i === 0 ? w1 : (p[i * 3 - 1] + w1) / 2) * size;
-  ctx.shadowColor = pen.kind === "ink" ? `${pen.ink}24` : "transparent";
-  ctx.shadowBlur = pen.kind === "ink" ? width * ctx.getTransform().a * 1.4 : 0;
-  if (i === 0) {
-    ctx.beginPath();
-    ctx.arc(x1 * size, y1 * size, (w1 * size) / 2, 0, Math.PI * 2);
-    ctx.fill();
-    return;
-  }
-  const [x0, y0] = [p[i * 3 - 3], p[i * 3 - 2]];
-  ctx.lineWidth = width;
-  ctx.beginPath();
-  ctx.moveTo(x0 * size, y0 * size);
-  ctx.lineTo(x1 * size, y1 * size);
-  ctx.stroke();
-}
 
 function DrawSurface({ pageId }: { pageId: string }) {
   const pen = useContext(DrawingContext);
@@ -170,7 +142,7 @@ function DrawSurface({ pageId }: { pageId: string }) {
     const { x, y } = locate(e);
     const base = PEN_BY_ID[pen].width;
     const w = e.pointerType === "pen" && e.pressure > 0 ? base * (0.5 + e.pressure) : base;
-    const stroke: Stroke = { pen, points: [x, y, w] };
+    const stroke: Stroke = { pen, points: [x, y, w], t: [e.timeStamp] };
     addStroke(pageId, stroke);
     active.current.set(e.pointerId, { stroke, x, y, t: e.timeStamp });
   };
@@ -205,6 +177,7 @@ function DrawSurface({ pageId }: { pageId: string }) {
         w = prev + (target - prev) * 0.35;
       }
       pts.push(x, y, w);
+      a.stroke.t.push(ev.timeStamp);
       paintSegment(c.ctx, a.stroke, pts.length / 3 - 1, c.size);
       a.x = x;
       a.y = y;
@@ -264,11 +237,17 @@ function SketchPage({ sketch, pageId }: { sketch?: Sketch; pageId: string }) {
   );
 }
 
-function buildFaces(items: Sketch[]): Face[] {
-  // Ben's drawings fill both sides of each sheet; visitors draw on the blank
-  // inside covers. An odd count is padded with one blank page so every sheet
-  // has two sides; blank pages each need their own id so drawings stay put.
-  const pages: (Sketch | undefined)[] = [...items];
+type Page = { kind: "sketch"; sketch: Sketch } | { kind: "guest"; drawing: GuestDrawing };
+
+function buildFaces(items: Sketch[], guests: GuestDrawing[]): Face[] {
+  // Ben's drawings, then approved visitor drawings, fill both sides of each
+  // sheet; visitors draw on the blank inside covers. An odd count is padded
+  // with one blank page so every sheet has two sides; blank pages each need
+  // their own id so drawings stay put.
+  const pages: (Page | undefined)[] = [
+    ...items.map((sketch) => ({ kind: "sketch" as const, sketch })),
+    ...guests.map((drawing) => ({ kind: "guest" as const, drawing })),
+  ];
   if (pages.length % 2 === 1) pages.push(undefined);
   let blank = 0;
 
@@ -281,7 +260,16 @@ function buildFaces(items: Sketch[]): Face[] {
       blank: true,
       node: <SketchPage pageId="cover-inside" />,
     },
-    ...pages.map((sketch) => {
+    ...pages.map((page): Face => {
+      if (page?.kind === "guest") {
+        const key = `guest-${page.drawing.id}`;
+        return {
+          key,
+          className: styles.page,
+          node: <GuestPage faceKey={key} drawing={page.drawing} />,
+        };
+      }
+      const sketch = page?.sketch;
       const id = sketch ? sketch.id : `blank-${++blank}`;
       return {
         key: id,
@@ -306,21 +294,44 @@ function buildFaces(items: Sketch[]): Face[] {
   ];
 }
 
-const faces = buildFaces(sketches);
-const leaves = Array.from({ length: faces.length / 2 }, (_, i) => ({
-  front: faces[i * 2],
-  back: faces[i * 2 + 1],
-}));
-const LEAF_COUNT = leaves.length;
-// Spread n shows the back of leaf n - 1 beside the front of leaf n.
-const DRAWABLE_SPREADS = Array.from({ length: LEAF_COUNT - 1 }, (_, i) => i + 1).filter(
-  (n) => faces[n * 2 - 1].drawable || faces[n * 2].drawable,
-);
-/** Where a pen picked up on a cover opens to: the first spread with a blank
- * page (the inside front cover). */
-const FIRST_BLANK_SPREAD =
-  DRAWABLE_SPREADS.find((n) => faces[n * 2 - 1].blank || faces[n * 2].blank) ??
-  DRAWABLE_SPREADS[0];
+function buildBook(guests: GuestDrawing[]) {
+  const faces = buildFaces(sketches, guests);
+  const leaves = Array.from({ length: faces.length / 2 }, (_, i) => ({
+    front: faces[i * 2],
+    back: faces[i * 2 + 1],
+  }));
+  const leafCount = leaves.length;
+  // Spread n shows the back of leaf n - 1 beside the front of leaf n.
+  const drawableSpreads = Array.from({ length: leafCount - 1 }, (_, i) => i + 1).filter(
+    (n) => faces[n * 2 - 1].drawable || faces[n * 2].drawable,
+  );
+  /** Where a pen picked up on a cover opens to: the first spread with a blank
+   * page (the inside front cover). */
+  const firstBlankSpread =
+    drawableSpreads.find((n) => faces[n * 2 - 1].blank || faces[n * 2].blank) ??
+    drawableSpreads[0];
+  return { faces, leaves, leafCount, drawableSpreads, firstBlankSpread };
+}
+
+/** Guest pages visible on the open spread, while the reader is up. */
+const VisibleFacesContext = createContext<ReadonlySet<string>>(new Set());
+
+/** A visitor's page: replays their drawing (with their name cursor) each
+ * time it comes into view in the reader. */
+function GuestPage({ faceKey, drawing }: { faceKey: string; drawing: GuestDrawing }) {
+  const visible = useContext(VisibleFacesContext).has(faceKey);
+  const [playing, setPlaying] = useState(false);
+  useEffect(() => {
+    if (!visible) {
+      setPlaying(false);
+      return;
+    }
+    // Let the page finish turning before the pen starts.
+    const timer = window.setTimeout(() => setPlaying(true), 450);
+    return () => window.clearTimeout(timer);
+  }, [visible]);
+  return <GuestReplay drawing={drawing} playing={playing} />;
+}
 
 type Drag = { leaf: number; progress: number };
 
@@ -332,6 +343,11 @@ export function Booklet({
   pen,
   className,
 }: BookletProps) {
+  const guests = useGuestDrawings();
+  const { faces, leaves, leafCount, drawableSpreads, firstBlankSpread } = useMemo(
+    () => buildBook(guests),
+    [guests],
+  );
   const [current, setCurrent] = useState(0);
   const currentRef = useRef(0);
   const [drag, setDrag] = useState<Drag | null>(null);
@@ -377,12 +393,12 @@ export function Booklet({
 
   const turnTo = useCallback(
     (next: number) => {
-      const target = Math.min(LEAF_COUNT, Math.max(0, next));
+      const target = Math.min(leafCount, Math.max(0, next));
       markMoving(currentRef.current, target);
       currentRef.current = target;
       setCurrent(target);
     },
-    [markMoving],
+    [markMoving, leafCount],
   );
 
   const go = useCallback((delta: number) => turnTo(currentRef.current + delta), [turnTo]);
@@ -395,12 +411,12 @@ export function Booklet({
       reset: () => turnTo(0),
       showDrawable: () =>
         turnTo(
-          DRAWABLE_SPREADS.includes(currentRef.current)
+          drawableSpreads.includes(currentRef.current)
             ? currentRef.current
-            : FIRST_BLANK_SPREAD,
+            : firstBlankSpread,
         ),
     }),
-    [go, turnTo],
+    [go, turnTo, drawableSpreads, firstBlankSpread],
   );
 
   // Pause the idle drift while the stage is scrolled out of view.
@@ -500,7 +516,7 @@ export function Booklet({
       p.moved = true;
       p.forward = dx < 0;
       p.leaf = p.forward
-        ? current < LEAF_COUNT
+        ? current < leafCount
           ? current
           : null
         : current > 0
@@ -528,7 +544,7 @@ export function Booklet({
       const rect = stageRef.current?.getBoundingClientRect();
       const mid = rect ? rect.left + rect.width / 2 : e.clientX;
       if (current === 0) go(1);
-      else if (current === LEAF_COUNT) go(-1);
+      else if (current === leafCount) go(-1);
       else go(e.clientX >= mid ? 1 : -1);
       return;
     }
@@ -559,27 +575,27 @@ export function Booklet({
     }
   };
 
-  // Continuous position (0 = closed on cover, LEAF_COUNT = closed on back).
+  // Continuous position (0 = closed on cover, leafCount = closed on back).
   const position = drag ? drag.leaf + drag.progress : current;
   // Stacks count only leaves lying flat: not held, not still swinging.
   let leftLeaves = 0;
   let rightLeaves = 0;
-  for (let i = 0; i < LEAF_COUNT; i++) {
+  for (let i = 0; i < leafCount; i++) {
     if (drag?.leaf === i || moving.current.has(i)) continue;
     if (i < current) leftLeaves++;
     else rightLeaves++;
   }
   const frontClosed = Math.max(0, 1 - position);
-  const backClosed = Math.max(0, position - (LEAF_COUNT - 1));
+  const backClosed = Math.max(0, position - (leafCount - 1));
   // Closed: the cover is centred. Open: the spread is centred.
   const shift = -25 * frontClosed + 25 * backClosed;
 
   const statusLabel =
     current === 0
       ? "Cover"
-      : current === LEAF_COUNT
+      : current === leafCount
         ? "Back cover"
-        : `Spread ${current} of ${LEAF_COUNT - 1}`;
+        : `Spread ${current} of ${leafCount - 1}`;
 
   const handlers = interactive
     ? {
@@ -595,6 +611,15 @@ export function Booklet({
       }
     : { "aria-hidden": true };
 
+  // Guest pages replay only in the open reader, on the spread showing them.
+  const showing = size === "reader" && !paused && !drag;
+  const leftKey = faces[current * 2 - 1]?.key;
+  const rightKey = current < leafCount ? faces[current * 2]?.key : undefined;
+  const visibleFaces = useMemo(
+    () => new Set(showing ? [leftKey, rightKey].filter((k): k is string => !!k) : []),
+    [showing, leftKey, rightKey],
+  );
+
   return (
     <div
       ref={stageRef}
@@ -605,6 +630,7 @@ export function Booklet({
       data-drawing={interactive && pen ? "" : undefined}
       {...handlers}
     >
+      <VisibleFacesContext.Provider value={visibleFaces}>
       <DrawingContext.Provider value={interactive ? (pen ?? null) : undefined}>
         <div className={styles.float}>
           <div
@@ -617,8 +643,8 @@ export function Booklet({
               ["--back-closed" as string]: backClosed,
               // Share of the page block lying flat on each side; a leaf mid-turn
               // counts for neither, so nothing appears under it as it lifts.
-              ["--left-depth" as string]: leftLeaves / LEAF_COUNT,
-              ["--right-depth" as string]: rightLeaves / LEAF_COUNT,
+              ["--left-depth" as string]: leftLeaves / leafCount,
+              ["--right-depth" as string]: rightLeaves / leafCount,
             }}
           >
             {/* Only where pages lie flat — none under the cover as it lifts. */}
@@ -632,7 +658,7 @@ export function Booklet({
               const isDragged = drag?.leaf === i;
               const progress = isDragged ? drag.progress : i < current ? 1 : 0;
               const flipped = progress >= 0.5;
-              const z = flipped ? i * 0.6 : (LEAF_COUNT - i) * 0.6;
+              const z = flipped ? i * 0.6 : (leafCount - i) * 0.6;
               const angle = -180 * progress;
               return (
                 <div
@@ -661,6 +687,7 @@ export function Booklet({
           </div>
         </div>
       </DrawingContext.Provider>
+      </VisibleFacesContext.Provider>
       <span className={styles.shadow} aria-hidden="true" />
       {interactive ? (
         <>
@@ -675,13 +702,13 @@ export function Booklet({
               ←
             </button>
             <span aria-hidden="true">
-              {current + 1}/{LEAF_COUNT + 1}
+              {current + 1}/{leafCount + 1}
             </span>
             <button
               type="button"
               className={styles.counterStep}
               aria-label="Next page"
-              disabled={current === LEAF_COUNT}
+              disabled={current === leafCount}
               onClick={() => go(1)}
             >
               →

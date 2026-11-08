@@ -18,6 +18,7 @@ import { Booklet, type BookletHandle } from "./Booklet";
 import { notifyBookletClosed, setBookletOpen } from "./bookletState";
 import { PEN_BY_ID } from "./pens";
 import { PenTray } from "./PenTray";
+import { SendToBen } from "./SendToBen";
 import { redo, undo, updateSketchbook, useSketchbook } from "./sketchbookState";
 import { useReaderZoom } from "./useReaderZoom";
 import styles from "./BookletViewer.module.css";
@@ -395,15 +396,18 @@ export function BookletViewer({ ref, className }: BookletViewerProps) {
                     Back
                   </Button>
                 </div>
-                  {zoomed ? (
-                    <button
-                      type="button"
-                      className={styles.zoomReset}
-                      onClick={resetZoom}
-                    >
-                      Reset zoom
-                    </button>
-                  ) : null}
+                  <div className={styles.topRight}>
+                    {zoomed ? (
+                      <button
+                        type="button"
+                        className={styles.zoomReset}
+                        onClick={resetZoom}
+                      >
+                        Reset zoom
+                      </button>
+                    ) : null}
+                    <SendToBen />
+                  </div>
                   <PenTray onPick={() => readerRef.current?.showDrawable()} />
                 </div>
                 {pen ? (

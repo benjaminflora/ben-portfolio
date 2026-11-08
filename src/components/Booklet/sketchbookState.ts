@@ -15,8 +15,10 @@ export interface SketchbookState {
   canRedo: boolean;
 }
 
-/** Points are [x, y, width] triples, normalised to the page width. */
-export type Stroke = { pen: PenId; points: number[] };
+/** Points are [x, y, width] triples, normalised to the page width; `t` holds
+ * when each point was laid down (ms, page clock), so a drawing can be sent to
+ * Ben as a replayable recording. */
+export type Stroke = { pen: PenId; points: number[]; t: number[] };
 
 type Entry = { pageId: string; stroke: Stroke };
 
@@ -101,4 +103,23 @@ export function useSketchbook() {
     () => state,
     () => initial,
   );
+}
+
+/** Pages a visitor can send to Ben: the blank ones (inside covers and any
+ * padding page), not Ben's own drawings. */
+function isBlankPage(pageId: string) {
+  return pageId === "cover-inside" || pageId === "back-inside" || pageId.startsWith("blank-");
+}
+
+/** The blank page drawn on most recently, if it still has strokes. */
+export function drawingToSend(): { pageId: string; strokes: Stroke[] } | null {
+  for (let i = done.length - 1; i >= 0; i--) {
+    const { pageId } = done[i];
+    if (!isBlankPage(pageId)) continue;
+    const pageStrokes = strokes.get(pageId) ?? [];
+    if (pageStrokes.some((stroke) => stroke.pen !== "eraser")) {
+      return { pageId, strokes: pageStrokes };
+    }
+  }
+  return null;
 }
