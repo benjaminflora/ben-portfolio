@@ -30,7 +30,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Benjamin Flora — Design Systems Designer",
+  title: "Ben Flora - Product Designer",
   description:
     "Product-oriented design systems designer building systems to enhance product UX.",
 };
