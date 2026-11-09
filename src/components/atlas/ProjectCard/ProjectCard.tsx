@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRightIcon } from "@/components/icons/ArrowUpRightIcon";
 import styles from "./ProjectCard.module.css";
@@ -42,12 +43,14 @@ export function ProjectCard({
     <>
       <div className={styles.thumbnail}>
         {imageSrc ? (
-          <img
+          // Served resized and as WebP/AVIF by Next's image optimizer: the
+          // originals are 2400px-wide PNG/JPGs (up to ~1.8MB each).
+          <Image
             src={imageSrc}
             alt={showMeta ? imageAlt : ""}
             className={styles.thumbnailImage}
-            loading="lazy"
-            decoding="async"
+            fill
+            sizes="(max-width: 720px) 100vw, min(50vw, 800px)"
           />
         ) : null}
         {external && href ? (

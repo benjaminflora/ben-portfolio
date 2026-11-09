@@ -37,6 +37,20 @@ import styles from "./Booklet.module.css";
  * Structure: solid cover → drawing pages → solid back.
  * Turned pages lie flat to the left, so an open book reads as a centred spread. */
 
+let sketchesPrefetched = false;
+
+/** Starts downloading Ben's drawings (large traced SVGs) ahead of the reader
+ * opening, e.g. when someone hovers or touches the sketchbook. */
+export function prefetchSketches() {
+  if (sketchesPrefetched || typeof window === "undefined") return;
+  sketchesPrefetched = true;
+  for (const sketch of sketches) {
+    const img = new Image();
+    img.decoding = "async";
+    img.src = sketch.src;
+  }
+}
+
 export interface BookletHandle {
   next: () => void;
   prev: () => void;
@@ -233,7 +247,9 @@ function SketchPage({ sketch, pageId }: { sketch?: Sketch; pageId: string }) {
   return (
     <>
       <div className={styles.content}>
-        {sketch ? (
+        {/* Only the open reader shows the drawings (the hero book is
+            closed), so the large traced SVGs don't load with the page. */}
+        {sketch && pen !== undefined ? (
           <img
             className={styles.sketch}
             src={sketch.src}
@@ -337,10 +353,12 @@ function GuestPage({ faceKey, page }: { faceKey: string; page: GuestPageData }) 
     const timer = window.setTimeout(() => setPlaying(true), 450);
     return () => window.clearTimeout(timer);
   }, [visible]);
+  // The closed hero book never shows inside pages: paint nothing there.
+  if (pen === undefined) return null;
   return (
     <>
       <GuestReplay layers={page.layers} playing={playing} />
-      {pen !== undefined ? <DrawSurface pageId={faceKey} /> : null}
+      <DrawSurface pageId={faceKey} />
     </>
   );
 }

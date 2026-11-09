@@ -14,9 +14,10 @@ import { createPortal } from "react-dom";
 import { Button } from "@/components/atlas";
 import { CloseIcon } from "@/components/icons/CloseIcon";
 import { setSmoothScrollLocked } from "@/components/SmoothScroll";
-import { Booklet, type BookletHandle } from "./Booklet";
+import { Booklet, prefetchSketches, type BookletHandle } from "./Booklet";
 import { notifyBookletClosed, setBookletOpen } from "./bookletState";
 import { LINE_SCALE, PEN_BY_ID } from "./pens";
+import { loadGuestDrawings } from "./guestState";
 import { PenTray } from "./PenTray";
 import { SendToBen } from "./SendToBen";
 import { redo, undo, updateSketchbook, useSketchbook } from "./sketchbookState";
@@ -162,6 +163,8 @@ export function BookletViewer({ ref, className }: BookletViewerProps) {
         ? document.activeElement
         : null;
     setSmoothScrollLocked(true);
+    prefetchSketches();
+    loadGuestDrawings();
     setPhase("entering");
   }, [phase]);
 
@@ -317,6 +320,19 @@ export function BookletViewer({ ref, className }: BookletViewerProps) {
         tabIndex={0}
         aria-label="Open sketchbook"
         aria-haspopup="dialog"
+        // Someone's about to open it: fetch the drawings and guest pages now.
+        onPointerEnter={() => {
+          prefetchSketches();
+          loadGuestDrawings();
+        }}
+        onFocus={() => {
+          prefetchSketches();
+          loadGuestDrawings();
+        }}
+        onTouchStart={() => {
+          prefetchSketches();
+          loadGuestDrawings();
+        }}
         onClick={open}
         onKeyDown={(event) => {
           if (event.key === "Enter" || event.key === " ") {
