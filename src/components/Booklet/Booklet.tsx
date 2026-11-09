@@ -42,7 +42,9 @@ export interface BookletHandle {
   prev: () => void;
   /** Turns back to the closed cover. */
   reset: () => void;
-  /** Opens to a spread with drawing pages if one isn't showing. */
+  /** Opens a closed book to the nearest spread so there's a page to draw
+   * on; an open book stays on its spread (so people can draw on any page,
+   * including other visitors'). */
   showDrawable: () => void;
 }
 
@@ -313,16 +315,7 @@ function buildBook(guests: GuestDrawing[]) {
     back: faces[i * 2 + 1],
   }));
   const leafCount = leaves.length;
-  // Spread n shows the back of leaf n - 1 beside the front of leaf n.
-  const drawableSpreads = Array.from({ length: leafCount - 1 }, (_, i) => i + 1).filter(
-    (n) => faces[n * 2 - 1].drawable || faces[n * 2].drawable,
-  );
-  /** Where a pen picked up on a cover opens to: the first spread with a blank
-   * page (the inside front cover). */
-  const firstBlankSpread =
-    drawableSpreads.find((n) => faces[n * 2 - 1].blank || faces[n * 2].blank) ??
-    drawableSpreads[0];
-  return { faces, leaves, leafCount, drawableSpreads, firstBlankSpread };
+  return { faces, leaves, leafCount };
 }
 
 /** Guest pages visible on the open spread, while the reader is up. */
@@ -363,7 +356,7 @@ export function Booklet({
   className,
 }: BookletProps) {
   const guests = useGuestDrawings();
-  const { faces, leaves, leafCount, drawableSpreads, firstBlankSpread } = useMemo(
+  const { faces, leaves, leafCount } = useMemo(
     () => buildBook(guests),
     [guests],
   );
@@ -428,14 +421,13 @@ export function Booklet({
       next: () => go(1),
       prev: () => go(-1),
       reset: () => turnTo(0),
-      showDrawable: () =>
-        turnTo(
-          drawableSpreads.includes(currentRef.current)
-            ? currentRef.current
-            : firstBlankSpread,
-        ),
+      showDrawable: () => {
+        const at = currentRef.current;
+        if (at === 0) turnTo(1);
+        else if (at === leafCount) turnTo(leafCount - 1);
+      },
     }),
-    [go, turnTo, drawableSpreads, firstBlankSpread],
+    [go, turnTo, leafCount],
   );
 
   // Pause the idle drift while the stage is scrolled out of view.

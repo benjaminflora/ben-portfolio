@@ -18,11 +18,16 @@ interface GuestReplayProps {
   layers: GuestDrawing[];
   under?: GuestDrawing[];
   playing: boolean;
-  /** Playback speed (1 = as drawn). */
+  /** Playback speed (1 = as drawn; defaults to a touch quicker). */
   speed?: number;
   onDone?: () => void;
 }
 
+/** Shared default for `under`, so re-renders don't look like a new page
+ * (a fresh [] each render would restart the replay). */
+const NO_LAYERS: GuestDrawing[] = [];
+/** Replays run a quarter faster than drawn, so they stay lively. */
+const PLAYBACK_SPEED = 1.25;
 /** How long a cursor lingers after its last stroke before leaving. */
 const LINGER_MS = 700;
 /** Where the name tag sits relative to the pen point (matches the CSS), and
@@ -37,7 +42,19 @@ const MIN_TAG = 36;
 
 type Painter = { ctx: CanvasRenderingContext2D; size: number };
 
-export function GuestReplay({ layers, under = [], playing, speed = 1, onDone }: GuestReplayProps) {
+/** Gentle ease in and out (sine) for the cursor's travel between strokes:
+ * it starts and settles softly without lunging through the middle. */
+function easeInOut(f: number) {
+  return -(Math.cos(Math.PI * f) - 1) / 2;
+}
+
+export function GuestReplay({
+  layers,
+  under = NO_LAYERS,
+  playing,
+  speed = PLAYBACK_SPEED,
+  onDone,
+}: GuestReplayProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorRefs = useRef<(HTMLDivElement | null)[]>([]);
   /** Points drawn so far, per person, per stroke (so a resize can repaint). */
@@ -166,8 +183,17 @@ export function GuestReplay({ layers, under = [], playing, speed = 1, onDone }: 
             place(cursor, p[(upTo - 1) * 3], p[(upTo - 1) * 3 + 1]);
             cursor.dataset.state = "drawing";
           } else if (done[si] === 0 && si > 0) {
-            // Between strokes: glide toward the next one.
-            place(cursor, stroke.points[0], stroke.points[1]);
+            // Pen up between strokes: travel from where the last stroke
+            // ended to where this one starts, over the recorded pause.
+            const prev = person.strokes[si - 1];
+            const n = prev.t.length;
+            const from = prev.t[n - 1];
+            const to = stroke.t[0];
+            const f = to > from ? Math.min(1, Math.max(0, (elapsed - from) / (to - from))) : 1;
+            const e = easeInOut(f);
+            const [x0, y0] = [prev.points[(n - 1) * 3], prev.points[(n - 1) * 3 + 1]];
+            const [x1, y1] = [stroke.points[0], stroke.points[1]];
+            place(cursor, x0 + (x1 - x0) * e, y0 + (y1 - y0) * e);
           }
           if (upTo < stroke.t.length) break;
           next[who]++;
