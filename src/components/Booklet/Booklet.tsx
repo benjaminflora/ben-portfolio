@@ -659,20 +659,38 @@ export function Booklet({
     : { "aria-hidden": true };
 
   // Guest pages replay only in the open reader, on the spread showing them.
-  const showing = size === "reader" && !paused && !drag;
+  // (Not paused for a drag: switching replays off mid-swipe repaints whole
+  // pages right as the leaf starts moving.)
+  const showing = size === "reader" && !paused;
   const leftKey = faces[current * 2 - 1]?.key;
   const rightKey = current < leafCount ? faces[current * 2]?.key : undefined;
   // Spread n shows faces 2n-1 and 2n; keep one spread either side ready.
+  // Follows the page once it has landed, so building the next guest pages
+  // never competes with the turn itself (the spread being turned to was
+  // already a neighbour, so it's ready).
+  const [settled, setSettled] = useState(current);
+  useEffect(() => {
+    if (settled === current) return;
+    const stage = stageRef.current;
+    const turn = stage
+      ? parseFloat(getComputedStyle(stage).getPropertyValue("--booklet-turn-duration")) * 1000
+      : NaN;
+    const timer = window.setTimeout(
+      () => setSettled(current),
+      (Number.isFinite(turn) ? turn : 700) + 50,
+    );
+    return () => window.clearTimeout(timer);
+  }, [current, settled]);
   const nearFaces = useMemo(() => {
     const keys = new Set<string>();
-    for (let n = current - 1; n <= current + 1; n++) {
+    for (let n = settled - 1; n <= settled + 1; n++) {
       for (const i of [n * 2 - 1, n * 2]) {
         const key = faces[i]?.key;
         if (key) keys.add(key);
       }
     }
     return keys;
-  }, [faces, current]);
+  }, [faces, settled]);
   const visibleFaces = useMemo(
     () => new Set(showing ? [leftKey, rightKey].filter((k): k is string => !!k) : []),
     [showing, leftKey, rightKey],

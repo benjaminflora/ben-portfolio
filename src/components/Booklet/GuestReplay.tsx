@@ -59,6 +59,8 @@ export function GuestReplay({
   const cursorRefs = useRef<(HTMLDivElement | null)[]>([]);
   /** Points drawn so far, per person, per stroke (so a resize can repaint). */
   const progress = useRef<number[][]>([]);
+  /** Which layers the canvas currently holds (to skip needless repaints). */
+  const painted = useRef<unknown>(null);
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
 
@@ -117,12 +119,43 @@ export function GuestReplay({
     cursors.forEach((cursor) => cursor && (cursor.dataset.state = "hidden"));
 
     if (!animate) {
-      progress.current = people.map((p) => p.strokes.map((s) => s.t.length));
-      repaint();
-      const observer = new ResizeObserver(repaint);
+      // Stopping a replay (e.g. the page turned away): the canvas already
+      // holds what was drawn, so only finish the strokes that hadn't played
+      // yet — usually none. Repainting whole pages here stalled page turns.
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const sameSize =
+        canvas.width === Math.round(canvas.offsetWidth * dpr) &&
+        canvas.height === Math.round(canvas.offsetHeight * dpr);
+      const ctx = canvas.getContext("2d");
+      if (painted.current === people && sameSize && ctx) {
+        const c = { ctx, size: canvas.offsetWidth };
+        people.forEach((person, who) =>
+          person.strokes.forEach((stroke, si) => {
+            const from = progress.current[who]?.[si] ?? 0;
+            if (from < stroke.t.length) paintRange(c, stroke, from, stroke.t.length);
+          }),
+        );
+        progress.current = people.map((p) => p.strokes.map((s) => s.t.length));
+      } else {
+        progress.current = people.map((p) => p.strokes.map((s) => s.t.length));
+        repaint();
+        painted.current = people;
+      }
+      // Skip the observer's first call (it fires on observe) unless the size
+      // actually changed since this paint.
+      let lastWidth = canvas.offsetWidth;
+      let lastHeight = canvas.offsetHeight;
+      const observer = new ResizeObserver(() => {
+        if (canvas.offsetWidth === lastWidth && canvas.offsetHeight === lastHeight) return;
+        lastWidth = canvas.offsetWidth;
+        lastHeight = canvas.offsetHeight;
+        repaint();
+      });
       observer.observe(canvas);
       return () => observer.disconnect();
     }
+
+    painted.current = people;
 
     progress.current = people.map((p) => p.strokes.map(() => 0));
     let c = repaint();
