@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { cleanName, cleanStrokes, normaliseRecording } from "@/lib/guestbook";
-import { listApproved, savePending, sendReviewEmail, signReview } from "@/lib/guestbook-server";
+import {
+  listApproved,
+  resolvePage,
+  savePending,
+  sendReviewEmail,
+  signReview,
+} from "@/lib/guestbook-server";
 
 /* GET: approved guest drawings for the sketchbook.
  * POST: a visitor sends a drawing; it waits in "pending" and Ben gets an
@@ -68,8 +74,22 @@ export async function POST(request: Request) {
   if (!name) return NextResponse.json({ error: "Add your name (up to 32 characters)." }, { status: 400 });
   if (!strokes) return NextResponse.json({ error: "That drawing couldn't be read." }, { status: 400 });
 
+  // Drawn onto someone's guest page: it joins that page once approved.
+  let pageId: string | undefined;
+  if (typeof body.pageId === "string" && body.pageId) {
+    const page = await resolvePage(body.pageId).catch(() => null);
+    if (!page) {
+      return NextResponse.json({ error: "That page isn't in the sketchbook anymore." }, { status: 400 });
+    }
+    pageId = page;
+  }
+
   try {
-    const drawing = await savePending({ name, strokes: normaliseRecording(strokes) });
+    const drawing = await savePending({
+      name,
+      strokes: normaliseRecording(strokes),
+      ...(pageId ? { pageId } : {}),
+    });
     const origin = new URL(request.url).origin;
     const reviewUrl = `${origin}/sketchbook/review/${drawing.id}?token=${signReview(drawing.id)}`;
     await sendReviewEmail(drawing, reviewUrl);

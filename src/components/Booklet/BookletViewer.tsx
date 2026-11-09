@@ -12,11 +12,11 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/atlas";
-import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
+import { CloseIcon } from "@/components/icons/CloseIcon";
 import { setSmoothScrollLocked } from "@/components/SmoothScroll";
 import { Booklet, type BookletHandle } from "./Booklet";
 import { notifyBookletClosed, setBookletOpen } from "./bookletState";
-import { PEN_BY_ID } from "./pens";
+import { LINE_SCALE, PEN_BY_ID } from "./pens";
 import { PenTray } from "./PenTray";
 import { SendToBen } from "./SendToBen";
 import { redo, undo, updateSketchbook, useSketchbook } from "./sketchbookState";
@@ -78,7 +78,7 @@ export function BookletViewer({ ref, className }: BookletViewerProps) {
   const cursorRef = useRef<HTMLDivElement>(null);
   const bookWrapRef = useRef<HTMLDivElement>(null);
   const zoomLayerRef = useRef<HTMLDivElement>(null);
-  const { pen } = useSketchbook();
+  const { pen, color, size: lineSize } = useSketchbook();
   const { zoomed, reset: resetZoom } = useReaderZoom(
     bookWrapRef,
     zoomLayerRef,
@@ -259,7 +259,7 @@ export function BookletViewer({ ref, className }: BookletViewerProps) {
     if (!surface) return;
     const size = Math.max(
       3,
-      surface.getBoundingClientRect().width * PEN_BY_ID[pen].width,
+      surface.getBoundingClientRect().width * PEN_BY_ID[pen].width * LINE_SCALE[lineSize],
     );
     el.style.width = `${size}px`;
     el.style.height = `${size}px`;
@@ -391,9 +391,8 @@ export function BookletViewer({ ref, className }: BookletViewerProps) {
                 </div>
                 <div className={styles.chrome}>
                 <div className={styles.back}>
-                  <Button variant="secondary" onClick={close}>
-                    <ArrowRightIcon className={styles.backIcon} />
-                    Back
+                  <Button variant="secondary" iconOnly aria-label="Close sketchbook" onClick={close}>
+                    <CloseIcon />
                   </Button>
                 </div>
                   <div className={styles.topRight}>
@@ -415,7 +414,7 @@ export function BookletViewer({ ref, className }: BookletViewerProps) {
                     ref={cursorRef}
                     className={studio.nibDot}
                     data-eraser={pen === "eraser" ? "" : undefined}
-                    style={{ background: PEN_BY_ID[pen].ink }}
+                    style={{ background: pen !== "eraser" && color ? color : PEN_BY_ID[pen].ink }}
                     aria-hidden="true"
                   />
                 ) : null}

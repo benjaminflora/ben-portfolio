@@ -63,6 +63,35 @@ export const PEN_BY_ID = Object.fromEntries(PENS.map((pen) => [pen.id, pen])) as
   Pen
 >;
 
+/** Colours any pen can draw in (null = the pen's own ink/graphite). Graphite
+ * pens draw these as coloured pencil. */
+export const INK_COLORS = [
+  { id: "black", name: "Black", hex: "#1f1f22" },
+  { id: "red", name: "Red", hex: "#d11a2a" },
+  { id: "orange", name: "Orange", hex: "#ec6a1e" },
+  { id: "yellow", name: "Yellow", hex: "#e9b308" },
+  { id: "green", name: "Green", hex: "#1f9d55" },
+  { id: "blue", name: "Blue", hex: "#1b6fe0" },
+  { id: "purple", name: "Purple", hex: "#7c4ddb" },
+  { id: "pink", name: "Pink", hex: "#e2468f" },
+] as const;
+
+export const INK_HEXES: ReadonlySet<string> = new Set(INK_COLORS.map((c) => c.hex));
+
+/** Line weights, as multiples of each pen's own nib width. */
+export const LINE_SIZES = [
+  { id: "fine", name: "Fine", scale: 1 },
+  { id: "medium", name: "Medium", scale: 2 },
+  { id: "bold", name: "Bold", scale: 3.5 },
+] as const;
+
+export type LineSizeId = (typeof LINE_SIZES)[number]["id"];
+
+export const LINE_SCALE = Object.fromEntries(LINE_SIZES.map((s) => [s.id, s.scale])) as Record<
+  LineSizeId,
+  number
+>;
+
 interface PenModelProps {
   pen: PenId;
   /** Kuru Toga only: engine turns to show through the window. */

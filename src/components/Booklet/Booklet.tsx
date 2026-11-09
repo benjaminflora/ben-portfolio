@@ -16,15 +16,16 @@ import {
   type Ref,
 } from "react";
 import { sketches, type Sketch } from "@/data/sketches";
-import type { GuestDrawing } from "@/lib/guestbook";
+import { groupPages, type GuestDrawing, type GuestPage as GuestPageData } from "@/lib/guestbook";
 import { GuestReplay } from "./GuestReplay";
 import { useGuestDrawings } from "./guestState";
-import { PEN_BY_ID, type PenId } from "./pens";
+import { LINE_SCALE, PEN_BY_ID, type PenId } from "./pens";
 import { paintSegment } from "./paint";
 import { isGestureActive, onGestureStart } from "./gestureState";
 import {
   addStroke,
   discardStroke,
+  guestPageId,
   strokes,
   turnEngine,
   useSketchbook,
@@ -78,7 +79,9 @@ const DrawingContext = createContext<PenId | null | undefined>(undefined);
 
 function DrawSurface({ pageId }: { pageId: string }) {
   const pen = useContext(DrawingContext);
-  const { revision } = useSketchbook();
+  const { revision, color, size } = useSketchbook();
+  /** Chosen line weight (not `scale` below, the page's pixel width). */
+  const lineScale = LINE_SCALE[size];
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // Strokes in progress, one per finger/pen.
   const active = useRef(new Map<number, { stroke: Stroke; x: number; y: number; t: number }>());
@@ -140,9 +143,14 @@ function DrawSurface({ pageId }: { pageId: string }) {
     e.stopPropagation();
     e.currentTarget.setPointerCapture(e.pointerId);
     const { x, y } = locate(e);
-    const base = PEN_BY_ID[pen].width;
+    const base = PEN_BY_ID[pen].width * lineScale;
     const w = e.pointerType === "pen" && e.pressure > 0 ? base * (0.5 + e.pressure) : base;
-    const stroke: Stroke = { pen, points: [x, y, w], t: [e.timeStamp] };
+    const stroke: Stroke = {
+      pen,
+      points: [x, y, w],
+      t: [e.timeStamp],
+      ...(color && pen !== "eraser" ? { color } : {}),
+    };
     addStroke(pageId, stroke);
     active.current.set(e.pointerId, { stroke, x, y, t: e.timeStamp });
   };
@@ -168,12 +176,13 @@ function DrawSurface({ pageId }: { pageId: string }) {
       const speed = dist / Math.max(1, ev.timeStamp - a.t);
       const pts = a.stroke.points;
       const prev = pts[pts.length - 1];
-      let w = pen.width;
+      const nib = pen.width * lineScale;
+      let w = nib;
       if (ev.pointerType === "pen" && ev.pressure > 0) {
-        w = pen.width * (0.5 + ev.pressure);
+        w = nib * (0.5 + ev.pressure);
       } else if (pen.kind === "ink") {
         // The delta nib lays down more ink on slow strokes.
-        const target = pen.width * Math.min(1.35, Math.max(0.55, 1.35 - speed * 0.35));
+        const target = nib * Math.min(1.35, Math.max(0.55, 1.35 - speed * 0.35));
         w = prev + (target - prev) * 0.35;
       }
       pts.push(x, y, w);
@@ -237,16 +246,18 @@ function SketchPage({ sketch, pageId }: { sketch?: Sketch; pageId: string }) {
   );
 }
 
-type Page = { kind: "sketch"; sketch: Sketch } | { kind: "guest"; drawing: GuestDrawing };
+type Page = { kind: "sketch"; sketch: Sketch } | { kind: "guest"; page: GuestPageData };
 
 function buildFaces(items: Sketch[], guests: GuestDrawing[]): Face[] {
-  // Ben's drawings, then approved visitor drawings, fill both sides of each
-  // sheet; visitors draw on the blank inside covers. An odd count is padded
-  // with one blank page so every sheet has two sides; blank pages each need
-  // their own id so drawings stay put.
+  // Ben's drawings, then the guest pages (anyone can add to those), then one
+  // fresh blank page for someone who wants a page of their own (as are the
+  // inside covers). An odd count is padded with a blank so every sheet has two
+  // sides; blank pages each need their own id so drawings stay put.
+  const guestPages = groupPages(guests);
   const pages: (Page | undefined)[] = [
     ...items.map((sketch) => ({ kind: "sketch" as const, sketch })),
-    ...guests.map((drawing) => ({ kind: "guest" as const, drawing })),
+    ...guestPages.map((page) => ({ kind: "guest" as const, page })),
+    ...(guestPages.length ? [undefined] : []),
   ];
   if (pages.length % 2 === 1) pages.push(undefined);
   let blank = 0;
@@ -262,11 +273,12 @@ function buildFaces(items: Sketch[], guests: GuestDrawing[]): Face[] {
     },
     ...pages.map((page): Face => {
       if (page?.kind === "guest") {
-        const key = `guest-${page.drawing.id}`;
+        const key = guestPageId(page.page.id);
         return {
           key,
           className: styles.page,
-          node: <GuestPage faceKey={key} drawing={page.drawing} />,
+          drawable: true,
+          node: <GuestPage faceKey={key} page={page.page} />,
         };
       }
       const sketch = page?.sketch;
@@ -316,9 +328,11 @@ function buildBook(guests: GuestDrawing[]) {
 /** Guest pages visible on the open spread, while the reader is up. */
 const VisibleFacesContext = createContext<ReadonlySet<string>>(new Set());
 
-/** A visitor's page: replays their drawing (with their name cursor) each
- * time it comes into view in the reader. */
-function GuestPage({ faceKey, drawing }: { faceKey: string; drawing: GuestDrawing }) {
+/** A guest page: replays everyone's drawings on it (each with their name
+ * cursor) each time it comes into view in the reader, and can be drawn on to
+ * add to it. */
+function GuestPage({ faceKey, page }: { faceKey: string; page: GuestPageData }) {
+  const pen = useContext(DrawingContext);
   const visible = useContext(VisibleFacesContext).has(faceKey);
   const [playing, setPlaying] = useState(false);
   useEffect(() => {
@@ -330,7 +344,12 @@ function GuestPage({ faceKey, drawing }: { faceKey: string; drawing: GuestDrawin
     const timer = window.setTimeout(() => setPlaying(true), 450);
     return () => window.clearTimeout(timer);
   }, [visible]);
-  return <GuestReplay drawing={drawing} playing={playing} />;
+  return (
+    <>
+      <GuestReplay layers={page.layers} playing={playing} />
+      {pen !== undefined ? <DrawSurface pageId={faceKey} /> : null}
+    </>
+  );
 }
 
 type Drag = { leaf: number; progress: number };

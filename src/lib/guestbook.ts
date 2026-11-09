@@ -1,4 +1,4 @@
-import { PENS, type PenId } from "@/components/Booklet/pens";
+import { INK_HEXES, PENS, type PenId } from "@/components/Booklet/pens";
 
 /* Visitor drawings sent to Ben for the sketchbook's guest pages.
  *
@@ -13,6 +13,8 @@ export interface GuestStroke {
   points: number[];
   /** Milliseconds from the start of the drawing, one per point. */
   t: number[];
+  /** Ink colour from the sketchbook palette; unset = the pen's own. */
+  color?: string;
 }
 
 export interface GuestDrawing {
@@ -21,6 +23,36 @@ export interface GuestDrawing {
   /** ISO date the drawing was sent. */
   createdAt: string;
   strokes: GuestStroke[];
+  /** Set when drawn onto someone else's guest page: the id of the drawing
+   * that started that page. Unset for a page of one's own. */
+  pageId?: string;
+}
+
+/** One guest page: the drawing that started it, then everyone who added to
+ * it, in the order they were approved. */
+export interface GuestPage {
+  id: string;
+  layers: GuestDrawing[];
+}
+
+/** Groups approved drawings into pages, oldest page first. A contribution
+ * whose page is gone becomes a page of its own. */
+export function groupPages(drawings: GuestDrawing[]): GuestPage[] {
+  const sorted = [...drawings].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  const roots = new Map<string, GuestPage>();
+  for (const d of sorted) if (!d.pageId) roots.set(d.id, { id: d.id, layers: [d] });
+  const pages = [...roots.values()];
+  for (const d of sorted) {
+    if (!d.pageId) continue;
+    const page = roots.get(d.pageId);
+    if (page) page.layers.push(d);
+    else {
+      const own = { id: d.id, layers: [d] };
+      roots.set(d.id, own);
+      pages.push(own);
+    }
+  }
+  return pages;
 }
 
 export const NAME_MAX = 32;
@@ -48,7 +80,8 @@ export function cleanStrokes(raw: unknown): GuestStroke[] | null {
   const out: GuestStroke[] = [];
   for (const s of raw) {
     if (!s || typeof s !== "object") return null;
-    const { pen, points, t } = s as Record<string, unknown>;
+    const { pen, points, t, color } = s as Record<string, unknown>;
+    if (color !== undefined && (typeof color !== "string" || !INK_HEXES.has(color))) return null;
     if (typeof pen !== "string" || !PEN_IDS.has(pen)) return null;
     if (!Array.isArray(points) || !Array.isArray(t)) return null;
     if (points.length === 0 || points.length % 3 !== 0 || t.length !== points.length / 3) {
@@ -60,7 +93,12 @@ export function cleanStrokes(raw: unknown): GuestStroke[] | null {
       points.every((n) => typeof n === "number" && Number.isFinite(n) && n > -0.5 && n < 2) &&
       t.every((n) => typeof n === "number" && Number.isFinite(n) && n >= 0 && n < 3_600_000);
     if (!ok) return null;
-    out.push({ pen: pen as PenId, points: points as number[], t: t as number[] });
+    out.push({
+      pen: pen as PenId,
+      points: points as number[],
+      t: t as number[],
+      ...(typeof color === "string" ? { color } : {}),
+    });
   }
   return out;
 }
@@ -79,7 +117,7 @@ export function normaliseRecording(strokes: GuestStroke[]): GuestStroke[] {
     const points = stroke.points.map((n, i) =>
       Math.round(n * (i % 3 === 2 ? 1e5 : 1e4)) / (i % 3 === 2 ? 1e5 : 1e4),
     );
-    return { pen: stroke.pen, points, t };
+    return { pen: stroke.pen, points, t, ...(stroke.color ? { color: stroke.color } : {}) };
   });
 }
 

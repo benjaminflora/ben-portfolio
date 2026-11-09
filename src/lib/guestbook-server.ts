@@ -70,6 +70,21 @@ export async function reject(id: string) {
   await del(`${PENDING}${id}.json`);
 }
 
+/** The guest page a contribution should join: the approved drawing that
+ * started it (following a contribution back to its page). Null if gone. */
+export async function resolvePage(pageId: string): Promise<string | null> {
+  if (!isDrawingId(pageId)) return null;
+  const drawing = await readJson(`${APPROVED}${pageId}.json`);
+  if (!drawing) return null;
+  return drawing.pageId ?? drawing.id;
+}
+
+/** Everything already approved on one guest page, oldest first. */
+export async function pageLayers(pageId: string): Promise<GuestDrawing[]> {
+  const all = await listApproved();
+  return all.filter((d) => d.id === pageId || d.pageId === pageId);
+}
+
 /** Approved drawings, oldest first (so new ones join at the back). */
 export async function listApproved(): Promise<GuestDrawing[]> {
   const { blobs } = await list({ prefix: APPROVED, limit: 200 });
@@ -93,10 +108,12 @@ export async function sendReviewEmail(drawing: GuestDrawing, reviewUrl: string) 
     body: JSON.stringify({
       from,
       to: [to],
-      subject: `${drawing.name} drew something for your sketchbook`,
+      subject: drawing.pageId
+        ? `${drawing.name} added to a page in your sketchbook`
+        : `${drawing.name} drew something for your sketchbook`,
       html: `
         <div style="font-family:-apple-system,Segoe UI,sans-serif;font-size:15px;line-height:1.5;color:#111">
-          <p><strong>${name}</strong> sent a drawing for your sketchbook (${drawing.strokes.length} strokes).</p>
+          <p><strong>${name}</strong> ${drawing.pageId ? "added to a guest page in" : "sent a drawing for"} your sketchbook (${drawing.strokes.length} strokes).</p>
           <p>Watch it being drawn, then approve or reject it:</p>
           <p><a href="${reviewUrl}" style="display:inline-block;padding:10px 16px;background:#111;color:#fff;border-radius:8px;text-decoration:none">Review drawing</a></p>
           <p style="color:#888;font-size:13px">Nothing is published until you approve it.</p>

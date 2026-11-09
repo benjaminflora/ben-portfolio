@@ -29,6 +29,108 @@
   color: var(--atlas-base-text-tertiary);
 }
 
+/* Colour swatches and line sizes, shown while a pen is in hand. */
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 22ch;
+  justify-content: center;
+}
+
+.swatches,
+.sizes {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sizes {
+  gap: 2px;
+  padding-left: 12px;
+  border-left: 1px solid var(--atlas-border-subtle);
+}
+
+.swatch {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--swatch);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease;
+}
+
+.swatch:hover {
+  transform: scale(1.12);
+}
+
+/* The pen's own colour: a split chip so it reads as "default". */
+.swatch[data-own] {
+  background: linear-gradient(135deg, var(--swatch) 50%, #fff 50%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+.swatch[aria-checked="true"]::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1.5px var(--atlas-base-color-gray-12);
+}
+
+.sizeButton {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+}
+
+.sizeButton:hover {
+  background: var(--atlas-button-secondary-bg);
+}
+
+.sizeButton[aria-checked="true"] {
+  background: var(--atlas-button-secondary-bg-hover);
+}
+
+.sizeDot {
+  width: var(--dot);
+  height: var(--dot);
+  border-radius: 50%;
+}
+
+.sizeDot[data-eraser] {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.45);
+}
+
+.swatch:focus-visible,
+.sizeButton:focus-visible {
+  outline: 1px solid var(--atlas-base-text-tertiary);
+  outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  .tools {
+    gap: 8px;
+  }
+
+  .swatches {
+    gap: 3px;
+  }
+
+  .swatch {
+    width: 14px;
+    height: 14px;
+  }
+
+  .sizes {
+    padding-left: 8px;
+  }
+}
+
 .historyButton {
   padding: 4px 6px;
   font-family: inherit;

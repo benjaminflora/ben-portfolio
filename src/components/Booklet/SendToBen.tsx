@@ -6,9 +6,10 @@ import { NAME_MAX, normaliseRecording } from "@/lib/guestbook";
 import { drawingToSend, useSketchbook } from "./sketchbookState";
 import styles from "./SendToBen.module.css";
 
-/* "Send to Ben": a visitor sends the blank page they drew on, with their
- * name. Ben reviews it by email; approved drawings join the sketchbook's
- * guest pages and replay with the visitor's name cursor. */
+/* "Send to Ben": a visitor sends what they drew, with their name. From a
+ * blank page it becomes a guest page of its own; on someone's guest page it's
+ * added to that page. Ben reviews it by email first; approved drawings replay
+ * with the visitor's name cursor. */
 
 type Status = "idle" | "open" | "sending" | "sent" | "error";
 
@@ -46,6 +47,7 @@ export function SendToBen() {
         body: JSON.stringify({
           name: name.trim(),
           website: form.get("website") ?? "",
+          ...(page.joins ? { pageId: page.joins } : {}),
           strokes: normaliseRecording(page.strokes),
         }),
       });
@@ -70,7 +72,7 @@ export function SendToBen() {
   if (status === "idle" || status === "sent") {
     return (
       <Button variant="secondary" onClick={() => setStatus("open")}>
-        Send this page to Ben
+        {page?.joins ? "Add to this page" : "Send this page to Ben"}
       </Button>
     );
   }
@@ -117,7 +119,11 @@ export function SendToBen() {
           {error}
         </p>
       ) : (
-        <p className={styles.hint}>Ben reviews drawings before they go in the sketchbook.</p>
+        <p className={styles.hint}>
+          {page?.joins
+            ? "Ben reviews it, then your drawing joins this page."
+            : "Ben reviews drawings before they go in the sketchbook."}
+        </p>
       )}
     </form>
   );

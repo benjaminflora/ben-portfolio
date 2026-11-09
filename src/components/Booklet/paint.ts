@@ -4,7 +4,7 @@ import { PEN_BY_ID, type PenId } from "./pens";
  * and the guest-drawing replays so both lay down identical marks. */
 
 /** Anything with a pen and [x, y, width] points over the page width. */
-export type PaintableStroke = { pen: PenId; points: number[] };
+export type PaintableStroke = { pen: PenId; points: number[]; color?: string };
 
 /** Stable per-segment noise so graphite repaints with the same grain. */
 function grain(i: number) {
@@ -19,11 +19,13 @@ export function paintSegment(ctx: CanvasRenderingContext2D, stroke: PaintableStr
   const [x1, y1, w1] = [p[i * 3], p[i * 3 + 1], p[i * 3 + 2]];
   ctx.globalCompositeOperation = pen.kind === "eraser" ? "destination-out" : "source-over";
   ctx.globalAlpha = pen.kind === "graphite" ? pen.alpha * (0.7 + 0.3 * grain(i)) : pen.alpha;
-  ctx.strokeStyle = pen.ink;
-  ctx.fillStyle = pen.ink;
+  // A chosen colour replaces the pen's own (not for the eraser).
+  const ink = pen.kind !== "eraser" && stroke.color ? stroke.color : pen.ink;
+  ctx.strokeStyle = ink;
+  ctx.fillStyle = ink;
   // Water-based dye wicks into the paper a little past the nib.
   const width = (i === 0 ? w1 : (p[i * 3 - 1] + w1) / 2) * size;
-  ctx.shadowColor = pen.kind === "ink" ? `${pen.ink}24` : "transparent";
+  ctx.shadowColor = pen.kind === "ink" ? `${ink}24` : "transparent";
   ctx.shadowBlur = pen.kind === "ink" ? width * ctx.getTransform().a * 1.4 : 0;
   if (i === 0) {
     ctx.beginPath();

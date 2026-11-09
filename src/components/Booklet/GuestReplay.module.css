@@ -21,10 +21,12 @@
   left: 0;
   display: flex;
   align-items: flex-start;
-  /* Short glide between samples, so the cursor moves smoothly. */
-  transition:
-    transform 80ms linear,
-    opacity 0.25s ease;
+  /* The arrow's box; the name tag is positioned against it. */
+  width: 16px;
+  height: 16px;
+  /* No glide on the position: it updates every frame, and the name tag's
+     side is chosen for where the cursor actually is. */
+  transition: opacity 0.25s ease;
   will-change: transform;
 }
 
@@ -38,8 +40,12 @@
   filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.25));
 }
 
+/* The tag hangs below-right of the arrow; positioned on its own so it can
+   switch sides near the page edges (see GuestReplay's place()). */
 .tag {
-  margin: 12px 0 0 -2px;
+  position: absolute;
+  top: 12px;
+  left: 12px;
   padding: 2px 6px 3px;
   border-radius: 4px 9px 9px 9px;
   background: var(--cursor-color);
@@ -49,5 +55,28 @@
   font-weight: 500;
   line-height: 1.3;
   white-space: nowrap;
+  /* Long names shorten with "…" where the page is narrow. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+
+/* Near the right edge: tag ends just left of the pen point. The cursor box
+   is the 16px arrow, so 20px from its right edge is 4px left of the point. */
+.cursor[data-flip-x] .tag {
+  left: auto;
+  right: 20px;
+  border-radius: 9px 4px 9px 9px;
+}
+
+/* Near the bottom edge: tag ends just above the pen point. */
+.cursor[data-flip-y] .tag {
+  top: auto;
+  bottom: 20px;
+  border-radius: 9px 9px 9px 4px;
+}
+
+.cursor[data-flip-x][data-flip-y] .tag {
+  border-radius: 9px 9px 4px 9px;
 }

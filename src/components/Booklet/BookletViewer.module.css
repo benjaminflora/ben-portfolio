@@ -60,8 +60,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Leaves room for the pens standing below the book. */
-  --booklet-reader-max-vh: 50vh;
+  /* Clears the pens and the tray's bar above them (undo, colours, sizes),
+     so the page counter under the book never sits on the bar. */
+  --book-lift: calc(var(--studio-pen-visible) - var(--studio-pen-rest) + 40px);
+  /* The book's height fits what's left above the tray, less room for the
+     floor shadow and page counter under it (and never over half the screen). */
+  --booklet-reader-max-vh: min(
+    50vh,
+    calc(100vh - var(--nav-height) - var(--book-lift) - 150px)
+  );
   background: var(--booklet-reader-bg);
   outline: none;
   /* The reader handles its own pinch/pan (useReaderZoom); stop the browser
@@ -81,7 +88,6 @@
 
 .bookWrap {
   /* Lifts the book clear of the pens standing along the bottom. */
-  --book-lift: calc(var(--studio-pen-visible) - var(--studio-pen-rest));
   position: absolute;
   inset: 0;
   display: flex;
@@ -130,7 +136,7 @@
   will-change: transform;
 }
 
-/* Back out of the book — top-left of the card. */
+/* Close the book — top-left of the card. */
 .back {
   position: absolute;
   top: calc(var(--reader-card-inset) + 16px);
@@ -138,13 +144,11 @@
   pointer-events: auto;
 }
 
-/* Arrow points back; keeps the button's left padding even with the icon. */
+/* Close (×): a round icon button. */
 .back :global(button) {
-  --button-padding-start: 10px;
-}
-
-.backIcon {
-  transform: rotate(180deg);
+  width: 32px;
+  padding: 0;
+  justify-content: center;
 }
 
 /* Top-right of the card: send-to-Ben and, while zoomed, reset zoom. */

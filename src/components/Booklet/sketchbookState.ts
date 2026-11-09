@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import type { PenId } from "./pens";
+import type { LineSizeId, PenId } from "./pens";
 
 /* Pen in hand and the drawings made on the pages, with undo/redo across the
  * whole book. Module-level so it survives closing the reader. */
@@ -7,6 +7,10 @@ import type { PenId } from "./pens";
 export interface SketchbookState {
   /** Pen in hand, if any. */
   pen: PenId | null;
+  /** Ink colour (hex from INK_COLORS), or null for each pen's own. */
+  color: string | null;
+  /** Line weight for every pen (and the eraser). */
+  size: LineSizeId;
   /** Kuru Toga engine turns, one per stroke (9° each). */
   engine: number;
   /** Bumps whenever strokes change outside of live drawing, so pages repaint. */
@@ -18,12 +22,14 @@ export interface SketchbookState {
 /** Points are [x, y, width] triples, normalised to the page width; `t` holds
  * when each point was laid down (ms, page clock), so a drawing can be sent to
  * Ben as a replayable recording. */
-export type Stroke = { pen: PenId; points: number[]; t: number[] };
+export type Stroke = { pen: PenId; points: number[]; t: number[]; color?: string };
 
 type Entry = { pageId: string; stroke: Stroke };
 
 let state: SketchbookState = {
   pen: null,
+  color: null,
+  size: "fine",
   engine: 0,
   revision: 0,
   canUndo: false,
@@ -105,20 +111,34 @@ export function useSketchbook() {
   );
 }
 
-/** Pages a visitor can send to Ben: the blank ones (inside covers and any
- * padding page), not Ben's own drawings. */
-function isBlankPage(pageId: string) {
-  return pageId === "cover-inside" || pageId === "back-inside" || pageId.startsWith("blank-");
+const GUEST_PREFIX = "guest-";
+
+/** Sketchbook page id for a guest page (the drawing that started it). */
+export function guestPageId(drawingId: string) {
+  return `${GUEST_PREFIX}${drawingId}`;
 }
 
-/** The blank page drawn on most recently, if it still has strokes. */
-export function drawingToSend(): { pageId: string; strokes: Stroke[] } | null {
+/** Pages a visitor can send to Ben: blank pages (inside covers, the fresh
+ * page, padding) become a page of their own; guest pages get added to. Not
+ * Ben's own drawings. */
+function sendable(pageId: string): { joins?: string } | null {
+  if (pageId === "cover-inside" || pageId === "back-inside" || pageId.startsWith("blank-")) {
+    return {};
+  }
+  if (pageId.startsWith(GUEST_PREFIX)) return { joins: pageId.slice(GUEST_PREFIX.length) };
+  return null;
+}
+
+/** The sendable page drawn on most recently, if it still has strokes.
+ * `joins` is the guest page it adds to, if any. */
+export function drawingToSend(): { pageId: string; strokes: Stroke[]; joins?: string } | null {
   for (let i = done.length - 1; i >= 0; i--) {
     const { pageId } = done[i];
-    if (!isBlankPage(pageId)) continue;
+    const target = sendable(pageId);
+    if (!target) continue;
     const pageStrokes = strokes.get(pageId) ?? [];
     if (pageStrokes.some((stroke) => stroke.pen !== "eraser")) {
-      return { pageId, strokes: pageStrokes };
+      return { pageId, strokes: pageStrokes, ...target };
     }
   }
   return null;

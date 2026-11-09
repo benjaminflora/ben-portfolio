@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { readForReview, verifyReview } from "@/lib/guestbook-server";
+import { pageLayers, readForReview, verifyReview } from "@/lib/guestbook-server";
 import { ReviewPanel } from "./ReviewPanel";
 
 /* Ben's review page for a visitor's drawing, linked from the review email.
@@ -26,9 +26,19 @@ export default async function ReviewPage({
 
   const found = await readForReview(id);
   if (!found) {
-    return <ReviewPanel id={id} token={token} drawing={null} initialStatus="gone" />;
+    return <ReviewPanel id={id} token={token} drawing={null} under={[]} initialStatus="gone" />;
   }
+  // Added to someone's page: show what's already there underneath it.
+  const under = found.drawing.pageId
+    ? (await pageLayers(found.drawing.pageId)).filter((d) => d.id !== found.drawing.id)
+    : [];
   return (
-    <ReviewPanel id={id} token={token} drawing={found.drawing} initialStatus={found.status} />
+    <ReviewPanel
+      id={id}
+      token={token}
+      drawing={found.drawing}
+      under={under}
+      initialStatus={found.status}
+    />
   );
 }

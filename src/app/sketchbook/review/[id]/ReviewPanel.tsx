@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/atlas";
 import { GuestReplay } from "@/components/Booklet/GuestReplay";
 import type { GuestDrawing } from "@/lib/guestbook";
@@ -12,11 +12,14 @@ export function ReviewPanel({
   id,
   token,
   drawing,
+  under,
   initialStatus,
 }: {
   id: string;
   token: string;
   drawing: GuestDrawing | null;
+  /** The page this drawing adds to, if any (shown finished underneath). */
+  under: GuestDrawing[];
   initialStatus: Status;
 }) {
   const [status, setStatus] = useState<Status>(initialStatus);
@@ -24,6 +27,8 @@ export function ReviewPanel({
   const [error, setError] = useState("");
   // Bumped to replay from the start.
   const [take, setTake] = useState(0);
+  // Stable, so re-renders (e.g. pressing Approve) don't restart the replay.
+  const layers = useMemo(() => (drawing ? [drawing] : []), [drawing]);
 
   const decide = async (action: "approve" | "reject") => {
     setBusy(true);
@@ -54,13 +59,16 @@ export function ReviewPanel({
         {drawing ? (
           <p className={styles.meta}>
             Sent {new Date(drawing.createdAt).toLocaleString()} · {drawing.strokes.length} strokes
+            {drawing.pageId
+              ? ` · added to a page by ${[...new Set(under.map((d) => d.name))].join(", ") || "someone"}`
+              : " · a new page"}
           </p>
         ) : null}
       </header>
 
       {drawing ? (
         <div className={styles.sheet}>
-          <GuestReplay key={take} drawing={drawing} playing />
+          <GuestReplay key={take} layers={layers} under={under} playing />
         </div>
       ) : null}
 
