@@ -342,6 +342,10 @@ function buildBook(guests: GuestDrawing[]) {
 /** Whether inside-page content is rendered yet (see `showPages`). */
 const PagesShownContext = createContext(true);
 
+/** Pages on the open spread and the spreads either side of it: guest pages
+ * paint only there, so the next turn is ready but far pages cost nothing. */
+const NearFacesContext = createContext<ReadonlySet<string>>(new Set());
+
 /** Guest pages visible on the open spread, while the reader is up. */
 const VisibleFacesContext = createContext<ReadonlySet<string>>(new Set());
 
@@ -351,6 +355,7 @@ const VisibleFacesContext = createContext<ReadonlySet<string>>(new Set());
 function GuestPage({ faceKey, page }: { faceKey: string; page: GuestPageData }) {
   const pen = useContext(DrawingContext);
   const shown = useContext(PagesShownContext);
+  const near = useContext(NearFacesContext).has(faceKey);
   const visible = useContext(VisibleFacesContext).has(faceKey);
   const [playing, setPlaying] = useState(false);
   useEffect(() => {
@@ -363,8 +368,10 @@ function GuestPage({ faceKey, page }: { faceKey: string; page: GuestPageData }) 
     return () => window.clearTimeout(timer);
   }, [visible]);
   // The closed hero book never shows inside pages, and the reader holds them
-  // back while it opens: paint nothing until then.
+  // back while it opens (and away from the open spread): paint nothing then.
+  // The drawing surface stays, so marks made on this page are kept.
   if (pen === undefined || !shown) return null;
+  if (!near) return <DrawSurface pageId={faceKey} />;
   return (
     <>
       <GuestReplay layers={page.layers} playing={playing} />
@@ -655,6 +662,17 @@ export function Booklet({
   const showing = size === "reader" && !paused && !drag;
   const leftKey = faces[current * 2 - 1]?.key;
   const rightKey = current < leafCount ? faces[current * 2]?.key : undefined;
+  // Spread n shows faces 2n-1 and 2n; keep one spread either side ready.
+  const nearFaces = useMemo(() => {
+    const keys = new Set<string>();
+    for (let n = current - 1; n <= current + 1; n++) {
+      for (const i of [n * 2 - 1, n * 2]) {
+        const key = faces[i]?.key;
+        if (key) keys.add(key);
+      }
+    }
+    return keys;
+  }, [faces, current]);
   const visibleFaces = useMemo(
     () => new Set(showing ? [leftKey, rightKey].filter((k): k is string => !!k) : []),
     [showing, leftKey, rightKey],
@@ -671,6 +689,7 @@ export function Booklet({
       {...handlers}
     >
       <PagesShownContext.Provider value={showPages}>
+      <NearFacesContext.Provider value={nearFaces}>
       <VisibleFacesContext.Provider value={visibleFaces}>
       <DrawingContext.Provider value={interactive ? (pen ?? null) : undefined}>
         <div className={styles.float}>
@@ -729,6 +748,7 @@ export function Booklet({
         </div>
       </DrawingContext.Provider>
       </VisibleFacesContext.Provider>
+      </NearFacesContext.Provider>
       </PagesShownContext.Provider>
       <span className={styles.shadow} aria-hidden="true" />
       {interactive ? (
