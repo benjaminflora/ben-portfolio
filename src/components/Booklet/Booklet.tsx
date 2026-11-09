@@ -72,6 +72,10 @@ interface BookletProps {
   paused?: boolean;
   /** Pen in hand: page presses draw instead of turning. */
   pen?: PenId | null;
+  /** Renders what's on the inside pages (drawings, guest replays). The
+   * reader holds this off while it opens, so decoding the large drawings
+   * doesn't stall the opening animation. */
+  showPages?: boolean;
   className?: string;
 }
 
@@ -244,12 +248,13 @@ function DrawSurface({ pageId }: { pageId: string }) {
 
 function SketchPage({ sketch, pageId }: { sketch?: Sketch; pageId: string }) {
   const pen = useContext(DrawingContext);
+  const shown = useContext(PagesShownContext);
   return (
     <>
       <div className={styles.content}>
         {/* Only the open reader shows the drawings (the hero book is
             closed), so the large traced SVGs don't load with the page. */}
-        {sketch && pen !== undefined ? (
+        {sketch && pen !== undefined && shown ? (
           <img
             className={styles.sketch}
             src={sketch.src}
@@ -334,6 +339,9 @@ function buildBook(guests: GuestDrawing[]) {
   return { faces, leaves, leafCount };
 }
 
+/** Whether inside-page content is rendered yet (see `showPages`). */
+const PagesShownContext = createContext(true);
+
 /** Guest pages visible on the open spread, while the reader is up. */
 const VisibleFacesContext = createContext<ReadonlySet<string>>(new Set());
 
@@ -342,6 +350,7 @@ const VisibleFacesContext = createContext<ReadonlySet<string>>(new Set());
  * add to it. */
 function GuestPage({ faceKey, page }: { faceKey: string; page: GuestPageData }) {
   const pen = useContext(DrawingContext);
+  const shown = useContext(PagesShownContext);
   const visible = useContext(VisibleFacesContext).has(faceKey);
   const [playing, setPlaying] = useState(false);
   useEffect(() => {
@@ -353,8 +362,9 @@ function GuestPage({ faceKey, page }: { faceKey: string; page: GuestPageData }) 
     const timer = window.setTimeout(() => setPlaying(true), 450);
     return () => window.clearTimeout(timer);
   }, [visible]);
-  // The closed hero book never shows inside pages: paint nothing there.
-  if (pen === undefined) return null;
+  // The closed hero book never shows inside pages, and the reader holds them
+  // back while it opens: paint nothing until then.
+  if (pen === undefined || !shown) return null;
   return (
     <>
       <GuestReplay layers={page.layers} playing={playing} />
@@ -371,6 +381,7 @@ export function Booklet({
   interactive = true,
   paused = false,
   pen,
+  showPages = true,
   className,
 }: BookletProps) {
   const guests = useGuestDrawings();
@@ -659,6 +670,7 @@ export function Booklet({
       data-drawing={interactive && pen ? "" : undefined}
       {...handlers}
     >
+      <PagesShownContext.Provider value={showPages}>
       <VisibleFacesContext.Provider value={visibleFaces}>
       <DrawingContext.Provider value={interactive ? (pen ?? null) : undefined}>
         <div className={styles.float}>
@@ -717,6 +729,7 @@ export function Booklet({
         </div>
       </DrawingContext.Provider>
       </VisibleFacesContext.Provider>
+      </PagesShownContext.Provider>
       <span className={styles.shadow} aria-hidden="true" />
       {interactive ? (
         <>

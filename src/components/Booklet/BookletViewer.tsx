@@ -290,6 +290,19 @@ export function BookletViewer({ ref, className }: BookletViewerProps) {
     }
   }, [phase]);
 
+  // Inside pages (large drawings, guest replays) render only once the book
+  // has finished growing into the reader: decoding them mid-animation stalls
+  // it. The book is closed while it opens, so nothing visible is missing.
+  const [pagesShown, setPagesShown] = useState(false);
+  useEffect(() => {
+    if (phase === "closed") setPagesShown(false);
+    if (phase !== "open") return;
+    const root = getComputedStyle(document.documentElement);
+    const seconds = parseFloat(root.getPropertyValue("--booklet-fall-duration")) || 0.8;
+    const timer = window.setTimeout(() => setPagesShown(true), seconds * 1000 + 50);
+    return () => window.clearTimeout(timer);
+  }, [phase]);
+
   // Fallback in case transitionend never fires (e.g. an unchanged clip).
   useEffect(() => {
     if (phase !== "leaving") return;
@@ -402,6 +415,7 @@ export function BookletViewer({ ref, className }: BookletViewerProps) {
                       size="reader"
                       pen={pen}
                       paused={phase === "leaving"}
+                      showPages={pagesShown}
                     />
                   </div>
                 </div>
